@@ -177,9 +177,9 @@
 	<key>SUAutomaticallyUpdate</key>
 	<true/>
 	<key>SUEnableAutomaticChecks</key>
-	<true/>
+	<false/>
 	<key>SUFeedURL</key>
-	<string>https://ardia.dev/appcast.xml</string>
+	<string></string>
 	<key>SUPublicEDKey</key>
 	<string>gi1pBCemmSVpHM36dT5BJPPTcKC98QwS19mztCTyd4s=</string>
 	<key>SUScheduledCheckInterval</key>
