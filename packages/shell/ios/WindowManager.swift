@@ -424,6 +424,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
     if isMainWindow(window) {
       ShellEvents.send(.window, ["type": "fullScreen", "id": id, "on": entered && !ArdiaChromeWindowHost.windowFullScreenIs(forPage: window)])
     }
+    entry.roundFullScreenTop(entered)
     if entered { fullScreen.entered(id) }
   }
 

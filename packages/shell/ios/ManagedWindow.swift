@@ -8,8 +8,12 @@ final class ManagedWindow {
 
   let id: String
   let kind: WindowKind
-  var window: NSWindow
+  var window: NSWindow {
+    didSet { cornersBeforeFullScreen = nil }
+  }
   var isFullScreen = false
+  private var cornersBeforeFullScreen: (radius: CGFloat, corners: CACornerMask, curve: CALayerCornerCurve, masks: Bool)?
+  private static let fullScreenTopRadius: CGFloat = 12
   var reveal = Reveal.shown
   var exit: [() -> Void]?
   var contentShown = false
@@ -30,6 +34,26 @@ final class ManagedWindow {
   var isWaitingToReveal: Bool {
     if case .waiting = reveal { return true }
     return false
+  }
+
+  func roundFullScreenTop(_ on: Bool) {
+    guard let layer = (window.contentView?.superview ?? window.contentView)?.layer else { return }
+    if !on {
+      guard let saved = cornersBeforeFullScreen else { return }
+      cornersBeforeFullScreen = nil
+      layer.cornerRadius = saved.radius
+      layer.maskedCorners = saved.corners
+      layer.cornerCurve = saved.curve
+      layer.masksToBounds = saved.masks
+      return
+    }
+    if cornersBeforeFullScreen == nil {
+      cornersBeforeFullScreen = (layer.cornerRadius, layer.maskedCorners, layer.cornerCurve, layer.masksToBounds)
+    }
+    layer.cornerCurve = .continuous
+    layer.maskedCorners = layer.isGeometryFlipped ? [.layerMinXMinYCorner, .layerMaxXMinYCorner] : [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+    layer.cornerRadius = Self.fullScreenTopRadius
+    layer.masksToBounds = true
   }
 
   func whenRevealed(_ then: @escaping () -> Void) {
