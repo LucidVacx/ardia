@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useBrowser } from "../browser/store";
-import { activeTabId } from "../browser/model";
+import { activeTabId, dockedTabIds } from "../browser/model";
 import type { SplitView, Tab } from "../browser/types";
 import { tabEngine } from "../engines/engines";
 import { holderOf } from "../pins/pinShare";
@@ -141,7 +141,7 @@ export function newTabLingeringOver(windowId: string, from: string | undefined, 
   const was = s.tabs[from];
   const next = s.tabs[to];
   if (!was || !next || was.url || was.windowId !== windowId || next.windowId !== windowId || !isWebPageUrl(next.url)) return undefined;
-  if (isSmallWindow(s.windows[windowId]) || splitOf(s, from) || splitOf(s, to)) return undefined;
+  if (isSmallWindow(s.windows[windowId]) || splitOf(s, from) || splitOf(s, to) || dockedTabIds(s, s.windows[windowId]).includes(from)) return undefined;
   return from;
 }
 

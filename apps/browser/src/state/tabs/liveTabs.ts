@@ -3,7 +3,8 @@ import type { StripGroup, StripState, StripTab } from "../../platform/tabs";
 import type { BrowserState } from "../browser/store";
 import type { TabGroup } from "../browser/types";
 import { rootOf } from "../groups/groups";
-import { engineProfile } from "../browser/model";
+import { dockedTabIds, engineProfile } from "../browser/model";
+import { shownInSide } from "../side/side";
 import { forgetOpeners, switchKeepsOpeners } from "./openers";
 import { groupOf, withGroup } from "../pins/tabGrouping";
 import { placing } from "../pins/placing";
@@ -278,6 +279,7 @@ function show(s: BrowserState, key: string): BrowserState {
   const tab = s.tabs[key]!;
   const w = s.windows[tab.windowId];
   if (!w || w.profileId !== tab.profileId) return s;
+  if (dockedTabIds(s, w).includes(key)) return shownInSide(s, key);
   const shown = w.activeTabIds[tab.profileId];
   if (shown === key || (shown && splitTabIdsOf(splitOf(s, shown))?.includes(key))) return s.peeks[w.id] ? withoutPeek(s, w.id) : s;
   let next = apply(s, activated(s, key));

@@ -15,7 +15,20 @@ import { TabIcon } from "../sidebar/TabIcon";
 import { iconSymbol } from "../../lib/customIcon";
 import { useToolbarRow } from "../toolbar/useToolbarRow";
 import type { Tab } from "../../state/browser/types";
-import { SIDE_RAIL_COMMIT, SIDE_RAIL_FLICK, SIDE_RAIL_RUBBER, SIDE_RAIL_DOT, SIDE_RAIL_DOT_IDLE, SIDE_RAIL_DOT_SELECTED, SIDE_RAIL_DOTS_BOTTOM, SIDE_RAIL_DOTS_GAP, SIDE_RAIL_GAP, SIDE_RAIL_ICON, SIDE_RAIL_TOP, SIDE_RAIL_WIDTH } from "./tokens";
+import {
+  SIDE_RAIL_COMMIT,
+  SIDE_RAIL_DOT,
+  SIDE_RAIL_DOT_IDLE,
+  SIDE_RAIL_DOT_SELECTED,
+  SIDE_RAIL_DOTS_BOTTOM,
+  SIDE_RAIL_DOTS_GAP,
+  SIDE_RAIL_FLICK,
+  SIDE_RAIL_GAP,
+  SIDE_RAIL_ICON,
+  SIDE_RAIL_RUBBER,
+  SIDE_RAIL_TOP,
+  SIDE_RAIL_WIDTH,
+} from "./tokens";
 
 export function SideRail({ windowId, topTabs }: { windowId: string; topTabs: boolean }) {
   const tabIds = useSideTabs(windowId);
@@ -45,7 +58,9 @@ export function SideRail({ windowId, topTabs }: { windowId: string; topTabs: boo
   return (
     <View style={{ width: SIDE_RAIL_WIDTH, height: "100%", overflow: "hidden" }}>
       {!topTabs && <WindowDragRegion style={{ position: "absolute", left: 0, right: 0, top: 0, height: SIDE_RAIL_TOP }} />}
-      <Animated.View style={{ flex: 1, marginTop: iconTop, marginBottom: dotsRoom, alignItems: "center", gap: 6, transform: [{ translateX: slide }] }}>
+      <Animated.View
+        style={{ flex: 1, marginTop: iconTop, marginBottom: dotsRoom, alignItems: "center", gap: SIDE_RAIL_GAP, transform: [{ translateX: slide }] }}
+      >
         <SideRailProfile windowId={windowId} profileId={profileId} />
         <SideRailList count={tabIds.length + 1}>
           {tabIds.map((id) => (
@@ -84,7 +99,11 @@ function SideRailList({ count, children }: { count: number; children: ReactNode 
   return (
     <View style={{ flex: 1, alignSelf: "stretch" }} onLayout={(e) => setRoom(e.nativeEvent.layout.height)}>
       {overflows ? (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ alignItems: "center", gap: SIDE_RAIL_GAP, paddingBottom: SIDE_RAIL_GAP }} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ alignItems: "center", gap: SIDE_RAIL_GAP, paddingBottom: SIDE_RAIL_GAP }}
+          showsVerticalScrollIndicator={false}
+        >
           {children}
         </ScrollView>
       ) : (
@@ -116,10 +135,23 @@ function SideRailProfile({ windowId, profileId }: { windowId: string; profileId:
       <Pressable
         onPress={() => void openSideProfileMenu(windowId)}
         accessibilityLabel={`Secondary tab rail profile ${profile.name}, switch profile`}
-        style={{ width: SIDE_RAIL_ICON, height: SIDE_RAIL_ICON, borderRadius: radius.l, alignItems: "center", justifyContent: "center", backgroundColor: hovered ? theme.rowHover : undefined }}
+        style={{
+          width: SIDE_RAIL_ICON,
+          height: SIDE_RAIL_ICON,
+          borderRadius: radius.l,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: hovered ? theme.rowHover : undefined,
+        }}
       >
         {iconSymbol(profile.icon) ? (
-          <Symbol name={iconSymbol(profile.icon)!} size={14} weight="semibold" color={profileNameColor(profile, theme.dark)} style={{ width: 16, height: 16 }} />
+          <Symbol
+            name={iconSymbol(profile.icon)!}
+            size={14}
+            weight="semibold"
+            color={profileNameColor(profile, theme.dark)}
+            style={{ width: 16, height: 16 }}
+          />
         ) : (
           <Text size="heading" weight="semibold" style={{ color: profileNameColor(profile, theme.dark) }}>
             {profile.icon ?? (profile.name.trim()[0] ?? "?").toUpperCase()}
@@ -187,4 +219,10 @@ function SideRailIcon({ windowId, tabId, selected }: { windowId: string; tabId: 
   );
 }
 
-const railTab = (t: Tab | undefined) => ({ url: t?.url ?? "", title: t?.customTitle || t?.title || "", favicon: t?.favicon ?? null, customIcon: t?.customIcon ?? null, profileId: t?.profileId ?? "" });
+const railTab = (t: Tab | undefined) => ({
+  url: t?.url ?? "",
+  title: t?.customTitle || t?.title || "",
+  favicon: t?.favicon ?? null,
+  customIcon: t?.customIcon ?? null,
+  profileId: t?.profileId ?? "",
+});

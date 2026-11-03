@@ -203,7 +203,12 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
             <Surface
               fill={hex(dropInto || pressed ? theme.tabPressed : hovered ? tokens.groupHeaderHover : ink.clear)}
               cornerRadius={GROUP_HEADER_RADIUS}
-              style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", ...(compact ? { justifyContent: "center" } : { paddingLeft: 9, paddingRight: 6 }) }}
+              style={{
+                height: layout.rowHeight,
+                flexDirection: "row",
+                alignItems: "center",
+                ...(compact ? { justifyContent: "center" } : { paddingLeft: 9, paddingRight: 6 }),
+              }}
             >
               {group.icon || firstTab ? (
                 <TabIcon url={firstTab?.url ?? ""} favicon={firstTab?.favicon} icon={group.icon ?? firstTab?.customIcon} profileId={firstTab?.profileId} />

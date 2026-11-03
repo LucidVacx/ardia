@@ -311,3 +311,69 @@ test("a 0.2.42 session keeps its rail, its compact sidebar and its pane width th
   const { savedSidebarWidth } = await import("../sidebar/compact.ts");
   assert.equal(savedSidebarWidth(S().settings), 80);
 });
+
+test("Chrome activating a docked tab shows it in the rail and keeps the main tab", async () => {
+  const { chromeChanged } = await import("../tabs/liveTabs.ts");
+  const { w, a, b } = threeTabs();
+  S().dockToSide(b);
+  const before = { strip: 1, window: 1, profile: "", tabs: [{ key: a, browser: 1, index: 0, active: true, pinned: false }, { key: b, browser: 2, index: 1, active: false, pinned: false }] };
+  const after = { ...before, tabs: [{ ...before.tabs[0], active: false }, { ...before.tabs[1], active: true }] };
+  useBrowser.setState(chromeChanged(S(), before, after, { seen: new Set([a, b]) }));
+  assert.equal(active(w), a);
+  assert.equal(shownSideTab(S(), w), b);
+  assert.deepEqual(docked(w), [b]);
+});
+
+test("any path that makes a docked tab active, grouped or pinned takes it off the rail", () => {
+  const { w, a, b, c } = threeTabs();
+  S().dockToSide(b);
+  S().dockToSide(c);
+  const d = S().newTab(w, { url: "https://d.example/", background: true });
+  const g = S().createGroup([d]);
+  S().placeTabs([b], { pinned: false, groupId: g });
+  assert.deepEqual(docked(w), [c]);
+  S().togglePin(c);
+  assert.equal(side(w), undefined);
+  S().dockToSide(d);
+  useBrowser.setState({ windows: { ...S().windows, [w]: { ...S().windows[w], activeTabIds: { default: d } } } });
+  assert.equal(side(w), undefined);
+  assert.equal(active(w), d);
+  assert.ok(a);
+});
+
+test("app deactivation never closes a new tab made on the rail", async () => {
+  const { abandonedNewTabs } = await import("../pins/tabCleanup.ts");
+  const { w } = threeTabs();
+  S().openSideTab(w, "default");
+  const [railTab] = sideTabsOf(S(), w);
+  assert.equal(S().tabs[railTab].url, "");
+  assert.equal(abandonedNewTabs(S(), w).includes(railTab), false);
+  const loose = S().newTab(w, { background: true });
+  assert.ok(abandonedNewTabs(S(), w).includes(loose));
+});
+
+test("docking the empty main tab never leaves it lingering over the next page", async () => {
+  const { newTabLingeringOver } = await import("../windows/card.ts");
+  reset();
+  const w = S().createWindow({ url: "" });
+  const [blank] = S().windows[w].tabIds;
+  const page = S().newTab(w, { url: "https://b.example/", background: true });
+  assert.equal(newTabLingeringOver(w, blank, page, [blank, page]), blank);
+  S().dockToSide(blank);
+  assert.equal(active(w), page);
+  assert.equal(newTabLingeringOver(w, blank, page, [blank, page]), undefined);
+});
+
+test("with tabs shared, losing the window's last main tab opens a new one even with rail tabs awake", () => {
+  reset();
+  const a = S().createWindow({ url: "https://a1.example/" });
+  const a2 = S().newTab(a, { url: "https://a2.example/", background: true });
+  const b = S().createWindow({ url: "https://b1.example/" });
+  S().updateSettings({ shareTabsAcrossWindows: true });
+  S().dockToSide(a2);
+  assert.ok(view(b).some((id) => S().tabs[id].url === "https://a1.example/"), "the main tab is mirrored into the other window");
+  S().closeTabs(view(b));
+  assert.ok(active(a), "window a still has a main tab");
+  assert.equal(docked(a).includes(active(a)), false);
+  S().updateSettings({ shareTabsAcrossWindows: false });
+});

@@ -98,7 +98,8 @@ export function inPinnedContainer(s: Pick<BrowserState, "tabs" | "groups">, id: 
   return !!tab.pin || pinnedGroupMembers(s.groups).has(id);
 }
 
-export const dockedTabIds = (s: Pick<BrowserState, "settings">, w: BrowserWindow | undefined): string[] => (s.settings.sidePane !== false && w?.side?.tabIds) || [];
+export const dockedTabIds = (s: Pick<BrowserState, "settings">, w: BrowserWindow | undefined): string[] =>
+  (s.settings.sidePane !== false && w?.side?.tabIds) || [];
 
 export function viewTabIds(s: BrowserState, windowId: string, profileId?: string): string[] {
   const w = s.windows[windowId];

@@ -92,7 +92,12 @@ export const TabRow = memo(function TabRow({ tabId, onto = false, shift = null }
             shadowOpacity={active ? glow.shadowOpacity : 0}
             shadowRadius={glow.shadowRadius}
             shadowOffset={SELECTED_ROW_SHADOW_OFFSET}
-            style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", ...(compact ? { justifyContent: "center" } : { paddingLeft: 9 - border, paddingRight: 6 - border }) }}
+            style={{
+              height: layout.rowHeight,
+              flexDirection: "row",
+              alignItems: "center",
+              ...(compact ? { justifyContent: "center" } : { paddingLeft: 9 - border, paddingRight: 6 - border }),
+            }}
           >
             {resettable ? (
               <View {...backToPin.hoverProps}>

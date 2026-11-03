@@ -50,7 +50,8 @@ export const createUiSlice: StateCreator<BrowserState, [], [], UiSlice> = (set, 
 
   openPanel(windowId, initialText = "", newTab, tabId) {
     expectFocus(windowId, commandBarFocus);
-    set((s) => patchWindowUi(s, windowId, { panel: newTab ? { open: true, initialText, newTab } : tabId ? { open: true, initialText, tabId } : { open: true, initialText } }));
+    const panel = newTab ? { open: true, initialText, newTab } : tabId ? { open: true, initialText, tabId } : { open: true, initialText };
+    set((s) => patchWindowUi(s, windowId, { panel }));
   },
 
   closePanel(windowId) {

@@ -257,7 +257,8 @@ export const createSplitsSlice: StateCreator<BrowserState, [], [], SplitsSlice> 
     const split = splitOf(s, paneTabId);
     const pane = s.tabs[paneTabId];
     const tab = s.tabs[tabId];
-    if (!split || !pane || !tab || splitTabIds(split).includes(tabId) || tab.windowId !== pane.windowId || tab.profileId !== pane.profileId || inSide(s, tabId)) return;
+    if (!split || !pane || !tab || splitTabIds(split).includes(tabId) || tab.windowId !== pane.windowId || tab.profileId !== pane.profileId) return;
+    if (inSide(s, tabId)) return;
     s = { ...s, splits: removeFromSplits(s.splits, new Set([tabId])) };
     s = gather(s, paneTabId, [paneTabId, tabId]);
     const current = s.splits[split.id]!;

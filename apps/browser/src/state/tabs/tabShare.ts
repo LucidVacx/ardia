@@ -1,7 +1,7 @@
 import type { BrowserState } from "../browser/store";
 import { changedIds } from "../browser/changes";
 import { orderSections, syncGroupOrder, withParent } from "../groups/groups";
-import { dockedTabIds, familyKeyOf, IDLE_LIVE, inPinnedContainer, newId, pinKeyOf } from "../browser/model";
+import { dockedTabIds, familyKeyOf, IDLE_LIVE, inPinnedContainer, newId, pinKeyOf, viewTabIds } from "../browser/model";
 import { frozenOn, hasOwnOrSharedPage, hasPage, holderOfPage, IDLE, isAsleep, wakeOf, withNavigationAt, withWake } from "./pageSession";
 import { chainOf, copyOf, hasDuplicates, keyField, profilesOf, sectionOf, signature, treeOrder, union } from "../pins/pinMirror";
 import { removeTabs, withNewTab } from "./tabs";
@@ -18,7 +18,8 @@ export const sharesTabs = (s: Pick<BrowserState, "settings">) => !!s.settings?.s
 const listable = (t: Tab) => !t.pin && !!t.url && !t.liveItem;
 
 export function sharedListTab(s: BrowserState, t: Tab): boolean {
-  return sharesTabs(s) && listable(t) && isRegularWindow(s.windows[t.windowId]) && !inPinnedContainer(s, t.id) && !dockedTabIds(s, s.windows[t.windowId]).includes(t.id) && s.peeks[t.windowId]?.tabId !== t.id;
+  if (!sharesTabs(s) || !listable(t) || !isRegularWindow(s.windows[t.windowId]) || inPinnedContainer(s, t.id)) return false;
+  return !dockedTabIds(s, s.windows[t.windowId]).includes(t.id) && s.peeks[t.windowId]?.tabId !== t.id;
 }
 
 function listMember(s: BrowserState): (t: Tab) => boolean {
@@ -61,7 +62,8 @@ function swapPlaces(s: BrowserState, a: string, b: string): BrowserState {
   for (const id of new Set([ta.windowId, tb.windowId])) {
     const w = windows[id]!;
     const activeTabIds = moved ? Object.fromEntries(Object.entries(w.activeTabIds).map(([p, x]) => [p, x === a ? b : x === b ? a : x])) : w.activeTabIds;
-    const side = w.side && { side: { ...w.side, tabIds: swapIn(w.side.tabIds, a, b), shown: Object.fromEntries(Object.entries(w.side.shown ?? {}).map(([p, x]) => [p, x === a ? b : x === b ? a : x])) } };
+    const swapShown = (shown: Record<string, string>) => Object.fromEntries(Object.entries(shown).map(([p, x]) => [p, x === a ? b : x === b ? a : x]));
+    const side = w.side && { side: { ...w.side, tabIds: swapIn(w.side.tabIds, a, b), shown: swapShown(w.side.shown ?? {}) } };
     windows[id] = { ...w, tabIds: swapIn(w.tabIds, a, b), activeTabIds, ...side };
   }
   const swapAll = <T extends { tabIds: string[] }>(all: Record<string, T>): Record<string, T> => {
@@ -212,7 +214,7 @@ function conformList(input: BrowserState, windowId: string, profileId: string, s
 function keepShownProfile(s: BrowserState, windowId: string, gone: readonly string[]): BrowserState {
   const w = s.windows[windowId];
   if (!w || !w.tabIds.some((id) => gone.includes(id))) return s;
-  const shownHere = w.tabIds.filter((id) => s.tabs[id]?.profileId === w.profileId && !gone.includes(id));
+  const shownHere = viewTabIds(s, windowId).filter((id) => !gone.includes(id));
   if (w.tabIds.some((id) => !gone.includes(id)) && shownHere.some((id) => !isAsleep(s.tabs[id]))) return s;
   return withNewTab(s, windowId, { profileId: w.profileId, background: true })[0];
 }

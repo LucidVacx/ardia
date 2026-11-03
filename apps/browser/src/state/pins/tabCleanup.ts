@@ -1,6 +1,6 @@
 import type { StateCreator } from "zustand";
 import type { BrowserState } from "../browser/store";
-import { activeTabId, inPinnedContainer, isIncognitoProfile, pinSection, viewTabIds, without } from "../browser/model";
+import { activeTabId, dockedTabIds, inPinnedContainer, isIncognitoProfile, pinSection, viewTabIds, without } from "../browser/model";
 import { hasPage } from "../tabs/pageSession";
 import { holderOf } from "./pinShare";
 import { splitOf, splitTabIds, splitTabIdsOf } from "../splits/splits";
@@ -156,9 +156,10 @@ export function abandonedNewTabs(s: BrowserState, windowId: string): string[] {
   if (!w) return [];
   const selected = new Set(Object.values(w.activeTabIds));
   const shown = w.activeTabIds[w.profileId];
+  const docked = dockedTabIds(s, w);
   const out = w.tabIds.filter((id) => {
     const t = s.tabs[id];
-    return !!t && t.windowId === w.id && !t.url && !hasPage(t) && !t.pin && id !== shown && !selected.has(id);
+    return !!t && t.windowId === w.id && !t.url && !hasPage(t) && !t.pin && id !== shown && !selected.has(id) && !docked.includes(id);
   });
   return out.length >= w.tabIds.length ? out.slice(0, w.tabIds.length - 1) : out;
 }

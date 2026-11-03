@@ -14,7 +14,8 @@ export function ResizeHandle({ windowId }: { windowId: string }) {
     direction: 1,
     saved: () => savedSidebarWidth(currentSettings()),
     onLive: (w) => setLiveSidebarWidth(windowId, w),
-    onCommit: (w) => updateSettings(w < SIDEBAR_COMPACT_SNAP ? { sidebarCompact: true } : { sidebarWidth: Math.max(w, SIDEBAR_MIN_WIDTH), sidebarCompact: false }),
+    onCommit: (w) =>
+      updateSettings(w < SIDEBAR_COMPACT_SNAP ? { sidebarCompact: true } : { sidebarWidth: Math.max(w, SIDEBAR_MIN_WIDTH), sidebarCompact: false }),
   });
   return (
     <View

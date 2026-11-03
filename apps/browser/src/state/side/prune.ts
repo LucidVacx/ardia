@@ -27,14 +27,21 @@ export function settledSide(s: Pick<BrowserState, "tabs" | "groups" | "splits" |
   return rest;
 }
 
+const sameSide = (a: SideRail | undefined, b: SideRail | undefined) =>
+  a === b ||
+  (!!a && !!b && a.profileId === b.profileId && a.tabIds.join() === b.tabIds.join() && JSON.stringify(a.shown ?? {}) === JSON.stringify(b.shown ?? {}));
+
 export function settleSides(s: BrowserState, prev: BrowserState): Pick<BrowserState, "windows"> | null {
-  if (s.settings.sidePane === false || prev.settings.sidePane !== false) return null;
-  const windows = { ...s.windows };
-  let changed = false;
+  if (s.settings.sidePane === false) return null;
+  const turnedOn = prev.settings.sidePane === false;
+  if (!turnedOn && s.windows === prev.windows && s.groups === prev.groups && s.splits === prev.splits && s.tabs === prev.tabs) return null;
+  let windows: BrowserState["windows"] | null = null;
   for (const w of Object.values(s.windows)) {
     if (!w.side) continue;
-    windows[w.id] = { ...w, side: settledSide(s, w) };
-    changed = true;
+    const side = settledSide(s, w);
+    if (sameSide(side, w.side)) continue;
+    windows ??= { ...s.windows };
+    windows[w.id] = { ...w, side };
   }
-  return changed ? { windows } : null;
+  return windows ? { windows } : null;
 }
