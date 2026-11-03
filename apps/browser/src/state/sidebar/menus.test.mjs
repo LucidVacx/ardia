@@ -58,6 +58,7 @@ test("a shown tab's menu follows Dia's sections, and its hints are the keys that
     "Open in WebKit",
     "---",
     "New Group with Tab [folder.badge.plus] ⌃⌘N",
+    "Move to Secondary Tab Rail [sidebar.right]",
     "Move to Profile [person] ›",
     "Move to Window [macwindow] ›",
     "---",

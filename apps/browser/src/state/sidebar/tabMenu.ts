@@ -110,6 +110,7 @@ function organiseItems(s: BrowserState, windowId: string, tab: Tab, f: Facts): T
         ];
   return [
     ...grouping,
+    ...(f.housed || f.incognito || s.settings.sidePane === false ? [] : [{ id: "side", title: "Move to Secondary Tab Rail", symbol: "sidebar.right" }]),
     { id: "moveToProfile", title: "Move to Profile", symbol: "person", enabled: !f.incognito, children: profileItems(s, (id) => id === tab.profileId) },
     { id: "moveToWindow", title: "Move to Window", symbol: "macwindow", enabled: !f.incognito, children: windowItems(s, windowId) },
   ];
@@ -213,6 +214,7 @@ function runTabChoice(windowId: string, tab: Tab, f: Facts, choice: string | Des
   else if (choice === "ungroupTab") s.removeTabsFromGroup([tab.id]);
   else if (choice === "newGroup") newGroupWithSelection(windowId, [tab.id]);
   else if (choice === "unsplit") s.removeTabFromSplit(tab.id);
+  else if (choice === "side") s.dockToSide(tab.id);
   else if (choice === "mute") toggleMute(tab.id);
   else if (choice === "muteSite") toggleSiteMute(tab.id);
   else if (choice === "engine") void togglePageEngine(tab.id);

@@ -44,6 +44,8 @@ export const useToolbarLightsCenter = (): readonly [number, number] => toolbarLi
 
 type UrlAnchor = { left: number; top: number; width: number; sidebar?: { height: number } };
 
+export const sideUrlAnchorKey = (windowId: string) => `${windowId}:side`;
+
 export const useUrlAnchors = create<Record<string, UrlAnchor>>()(() => ({}));
 
 export function setUrlAnchor(windowId: string, anchor: UrlAnchor) {

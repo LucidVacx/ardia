@@ -3,7 +3,7 @@ import { showToast } from "../app/toasts";
 import { closeTab } from "../browser/actions";
 import { menuShortcut } from "../commands/commandShortcuts";
 import { storeAction, useBrowser } from "../browser/store";
-import { activeTabId } from "../browser/model";
+import { activeTabId, dockedTabIds } from "../browser/model";
 import { isStacked, MAX_SPLIT_PANES, type OpenPaneOptions, splitOf, type SplitSide, splitTabIds, splitTabIdsOf } from "./splits";
 import type { AdoptId } from "../browser/types";
 
@@ -35,6 +35,7 @@ export function openLinkInSplit(sourceTabId: string, url: string, adoptId?: Adop
   const s = store();
   const source = s.tabs[sourceTabId];
   if (!source) return;
+  if (dockedTabIds(s, s.windows[source.windowId]).includes(sourceTabId)) return void s.newTab(source.windowId, { url, adoptId, openerId: sourceTabId, profileId: source.profileId, background: true });
   const split = splitOf(s, sourceTabId);
   const panes = splitTabIdsOf(split);
   const next = panes?.[panes.indexOf(sourceTabId) + 1];

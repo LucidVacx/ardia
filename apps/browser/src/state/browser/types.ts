@@ -28,6 +28,13 @@ type WindowBase = {
   frame: Frame | null;
   fullScreen?: number;
   createdAt: number;
+  side?: SideRail;
+};
+
+export type SideRail = {
+  tabIds: string[];
+  profileId?: string;
+  shown?: Record<string, string>;
 };
 
 export type BrowserWindow =
@@ -194,6 +201,6 @@ export type FindState = {
 
 export type NewTabTarget = { kind: "list" } | { kind: "group"; groupId: string } | { kind: "into"; tabId: string };
 
-export type PanelState = { open: boolean; initialText: string; newTab?: NewTabTarget };
+export type PanelState = { open: boolean; initialText: string; newTab?: NewTabTarget; tabId?: string };
 
 export type WindowUi = { panel: PanelState; downloadsOpen: boolean };

@@ -6,6 +6,19 @@ export type Rect = { x: number; y: number; width: number; height: number };
 const PANE_GAP = layout.cardInset;
 const MIN_PANE = 220;
 
+export const SIDE_PANE_GAP = PANE_GAP;
+export const SIDE_PANE_MIN = 280;
+
+export function sidePaneMax(cardWidth: number, split: SplitView | undefined): number {
+  const columns = !split ? 1 : split.orientation === "horizontal" ? split.slots.length : split.slots.some((slot) => "stack" in slot) ? 2 : 1;
+  return cardWidth - MIN_PANE * columns - PANE_GAP * (columns - 1) - SIDE_PANE_GAP;
+}
+
+export function sidePaneWidth(saved: number, cardWidth: number, split: SplitView | undefined): number {
+  const max = sidePaneMax(cardWidth, split);
+  return max < SIDE_PANE_MIN ? 0 : Math.round(Math.min(Math.max(saved, SIDE_PANE_MIN), max));
+}
+
 export type Divider = { kind: "root"; index: number; rect: Rect; vertical: boolean } | { kind: "stack"; rect: Rect; vertical: boolean };
 
 type SplitGeometry = { panes: Record<string, Rect>; dividers: Divider[] };

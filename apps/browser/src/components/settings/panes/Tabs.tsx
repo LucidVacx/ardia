@@ -83,6 +83,7 @@ export function TabsPane() {
       </View>
       <Group style={{ marginTop: 14 }}>
         <SettingToggle anchor="tabs.hideToolbarWhileScrolling" />
+        <SettingToggle anchor="tabs.sidePane" />
         <SettingToggle anchor="tabs.showSidebarButton" />
         <SettingToggle anchor="tabs.showClearButton" />
         <SettingToggle anchor="tabs.balancedTopApps" />

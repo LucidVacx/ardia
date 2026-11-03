@@ -148,7 +148,7 @@ function useUrlField(tab: ToolbarTab, windowId: string, onFocus: () => void) {
   const hovered = pointerOver || popover === "siteControls";
   const openPanel = () => {
     onFocus();
-    openWindowPanel(windowId, tab.url);
+    openWindowPanel(windowId, tab.url, undefined, tab.id);
   };
   const toggleSiteControls = () => {
     onFocus();

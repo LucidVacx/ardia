@@ -4,6 +4,7 @@ import { forgetClosedWindowMutes } from "../tabs/mute";
 import { forgetClosedWindowCleanUps } from "../pins/tabCleanup";
 import { livePinTables } from "../pins/pinChoices";
 import { settlePeeks } from "../peek/peek";
+import { settleSides } from "../side/prune";
 import { pinnedTabsLeaveLive, settlePinHomes } from "../pins/pinHomes";
 import { mirrorPins } from "../pins/pinMirror";
 import { settleSharedPins } from "../pins/pinShare";
@@ -25,6 +26,7 @@ export const SETTLE_STEPS: readonly (readonly [string, SettleStep])[] = [
   ["settleNesting", patched((s, prev) => (s.groups === prev.groups && Object.values(s.windows).every((w) => w.tabIds === prev.windows[w.id]?.tabIds) ? null : settleNesting(s)))],
   ["livePinTables", patched(livePinTables)],
   ["settlePeeks", settlePeeks],
+  ["settleSides", patched(settleSides)],
   ["settlePinHomes", patched(settlePinHomes)],
   ["unshareTabs", unshareTabs],
   ["pagesIntoSplits", pagesIntoSplits],

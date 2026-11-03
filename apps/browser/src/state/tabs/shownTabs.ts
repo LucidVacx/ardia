@@ -3,10 +3,13 @@ import { activeTabId } from "../browser/model";
 import { peekTabId } from "../peek/peek";
 import { splitOf, splitTabIdsOf } from "../splits/splits";
 import { holderOfPage } from "./pageSession";
+import { shownSideTab } from "../side/side";
 
 export function shownTabIds(s: BrowserState): Set<string> {
   const shown = new Set<string>();
   for (const w of Object.values(s.windows)) {
+    const side = shownSideTab(s, w.id);
+    if (side) shown.add(side);
     const id = activeTabId(s, w.id);
     if (!id) continue;
     shown.add(id);

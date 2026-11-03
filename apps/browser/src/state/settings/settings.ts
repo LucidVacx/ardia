@@ -76,6 +76,8 @@ export const SETTING_SPECS = {
   videoUpscaling: flag(true, SYNCED),
   sidebarMediaControls: flag(true, SYNCED),
   sidebarWidth: width(DEFAULT_SIDEBAR_WIDTH),
+  sidePane: flag(true),
+  sidePaneWidth: width(420),
   sidebarCompact: flag(false),
   showSidebarButton: flag(true, SYNCED),
   showClearButton: flag(true, SYNCED),

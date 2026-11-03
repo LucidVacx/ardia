@@ -111,6 +111,11 @@ export const generalRows = {
           description: "Scrolling down tucks the toolbar into a thin strip with the site's name. Scroll up, or click the strip, to bring it back.",
           keywords: ["auto hide", "compact"],
         },
+        sidePane: {
+          title: "Secondary tab rail",
+          description: "A second tab rail on the right edge. Its tabs open in their own pane beside the page and stay there while you switch tabs, from any profile. Off, they go back to your tab list.",
+          keywords: ["secondary tabs", "side tabs", "side pane", "right rail", "split", "opera", "franz", "persistent"],
+        },
         showSidebarButton: { advanced: true, title: "Show sidebar button", description: "⌘S and View › Auto-Hide Tabs still hide and show the sidebar.", keywords: ["toggle sidebar"], shown: inSidebar },
         showClearButton: {
           advanced: true,
