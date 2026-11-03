@@ -1,230 +1,127 @@
-<p align="center">
-  <img src="apps/site/src/assets/app-icon.png" width="128" height="128" alt="Ardia's app icon">
-</p>
+# Ardia, with a secondary tab rail
 
-<h1 align="center">Touch grass.</h1>
+A community fork of [Ardia](https://github.com/mantrakp04/ardia) that keeps your always-open apps (ChatGPT, mail, chat) in a pane beside the page, one click away.
 
-<p align="center">
-  Arc’s sidebar and Dia’s polish on real Chromium.<br>
-  Free and open source. Ads and trackers stay out.
-</p>
+> **This is an unofficial fork.** It is based on Ardia **v0.2.43** and is not affiliated with, endorsed by or supported by the upstream maintainers. For the real thing, go to [github.com/mantrakp04/ardia](https://github.com/mantrakp04/ardia) or [ardia.dev](https://ardia.dev). Please don't report problems with this fork upstream.
 
-<h3 align="center">
-  <a href="https://github.com/mantrakp04/ardia/releases/download/v0.2.42/Ardia-0.2.42.dmg">Download Ardia 0.2.42 for Mac</a>
-</h3>
+![Ardia with the secondary tab rail and side pane](docs/fork/hero.png)
 
-<p align="center">
-  111 MB DMG · macOS 14 Sonoma or later · Apple Silicon · Notarized by Apple<br>
-  Like your paint wet? <a href="https://ardia.dev/nightly">The nightly</a> has every fix the day it’s made, smudges and all.<br>
-  Homebrew: <code>brew install mantrakp04/tap/ardia</code><br>
-  <a href="https://ardia.dev">ardia.dev</a> · <a href="https://ardia.dev/release-notes">What’s new</a> · <a href="https://github.com/mantrakp04/ardia/releases">All releases</a> · <a href="https://discord.gg/TdhuXrbcA6">Discord</a>
-</p>
+The work lives on the branch `hanto/rail-0.2.43`, this fork's default branch.
 
-<p align="center">
-  <img src="apps/site/src/assets/shots/window.webp" alt="The Ardia window in light mode: pinned tiles and tabs in the sidebar, and Wikipedia’s article on The Hay Wain open on the right.">
-</p>
+## What's different
 
-## Lose the toolbar.
+Everything else is stock Ardia 0.2.43.
 
-Move the address bar into the sidebar and the page runs all the way to the top of the window.
+### Secondary tab rail
 
-<img src="apps/site/src/assets/shots/address-sidebar.webp" alt="Ardia with the address bar in the sidebar under the traffic lights and Wikipedia running to the top of the window.">
+A slim rail on the right edge of the window holds your "secondary tabs": the sites you keep open all day. Click an icon and that tab opens in a resizable pane next to the main page. Click it again to hide it. The pane stays put while you switch tabs on the left, so it works like a permanent split view.
 
-## Two pages, one window.
+- Rail tabs can come from any profile.
+- The rail has its own profile, separate from the window's. Switch it with a two-finger swipe on the rail, the profile button, or the dots.
+- Rail tabs are kept out of Memory Saver's reach (see [Known limitations](#known-limitations)).
+- Works with both the sidebar and the top-tabs layout. Not available in private or small windows.
 
-Drag a tab onto the page. Up to three panes, side by side or stacked.
+![The rail, its profile switcher and the resizable side pane](docs/fork/rail.png)
 
-<img src="apps/site/src/assets/shots/split.webp" alt="Ardia in split view: MDN on the left, Wikipedia on the right, both in one window.">
+### Compact sidebar
 
-## Refuses to leave the picture.
+Drag the left sidebar narrower than about 120 pt and it snaps to an 80 pt icon-only column. Titles show as tooltips, and the header tools, labels and close buttons are hidden.
 
-Switch tabs mid-video and it floats along in the corner. Go back to its tab and it slips back into the page.
+![Normal sidebar next to the compact icon-only sidebar](docs/fork/compact-sidebar.png)
 
-<img src="apps/site/src/assets/shots/pip.webp" alt="Ardia on Wikipedia’s article about Big Buck Bunny, while the film keeps playing in a small floating window at the bottom right.">
+### Rounded corners in full screen
 
-## Your extensions come along.
+In macOS full screen, the window gets rounded top corners, which suits MacBook displays with rounded corners. A page's own full screen (a video, say) keeps square corners.
 
-The Chrome Web Store just works, its button says Add to Ardia, and Sync takes them to your other Macs.
+![Rounded top corners in macOS full screen](docs/fork/fullscreen-corners.png)
 
-<img src="apps/site/src/assets/shots/extensions.webp" alt="Dark Reader’s page on the Chrome Web Store, open in Ardia, with an Add to Ardia button.">
+### Popups over a full-screen window
 
-## Ads and trackers stay out.
+A popup opened from a full-screen window (a "Sign in with Google" window, for example) joins that window's Space at normal size. Stock Ardia gives it a full-screen Space of its own, or leaves it behind.
 
-The full uBlock Origin is built in, cookie banners included. Google’s pings are compiled out. Crash reports are
-opt-in and never carry your sites or searches.
+![A popup keeping its size over a full-screen window](docs/fork/popup-fullscreen.png)
 
-## Also in there
+## How to use
 
-- **Work stays at work.** Each profile keeps its own logins, history, extensions and colour. Swipe the sidebar to switch.
-- **Little Ardia.** ⌥⌘N opens a small window with one page and no sidebar.
-- **Groups on contact.** Drop a tab on a tab and they’re a group, named for you.
-- **Moves in for you.** Bookmarks, history, passwords and logins from Chrome, Safari, Firefox, Arc, Dia and five more. Arc’s spaces, pinned tabs and themes too.
-- **Paints like Arc.** Gradient themes per profile: up to three colours, some grain, some blur.
-- **Syncs through your iCloud.** End-to-end encrypted, in a folder in your own iCloud Drive. No server of ours in the middle.
-- **Command bar.** ⌘L finds tabs, history and bookmarks, does your sums, and knows doc.new and 16 friends.
-- **Tidies up.** ⌥⌘K sweeps the tabs you haven’t touched into Recently Cleaned.
-- **Clean links.** Copy a link and the tracking junk stays behind.
-- **Naps when you do.** Background tabs past your latest five freeze, and sleep after half an hour.
-- **Sits still.** Idles under half a percent of CPU with a tab open.
-- **Updates itself.** Quietly, then shows you what changed.
+**Turn it on.** Settings › Tabs › Tab layout › **Secondary tab rail**. Turning it off hands the rail's tabs back to your normal tab list.
 
-## It’s actually Chromium.
+**Dock a tab.** Right-click a tab and choose **Move to › Secondary Tab Rail**. The rail's own context menu moves tabs back. The **+** on the rail opens a new rail tab.
 
-Not WebKit. Not Electron. Every window is Chrome’s own, so sites, extensions and DevTools behave like they do in Chrome.
+**Show and hide.** Click a rail icon. Click it again to hide the pane.
 
-| Part | Details | Status |
-| --- | --- | --- |
-| Engine | Chromium 156, on Chrome’s own framework. | ✓ Yes |
-| De-Googled | Google’s background services stripped out. | ✓ Yes |
-| H.264 and AAC | The codecs Chromium leaves out. | ✓ Yes |
-| DevTools | Docked, with device mode. Like Chrome. | ✓ Yes |
-| Sync | End-to-end encrypted, through your own iCloud Drive. | ✓ Yes |
-| Translate | On your Mac. Nothing leaves it. | ✓ macOS 26 |
-| Passkeys | Touch ID yes. iCloud Keychain waits on Apple. | ~ Partly |
-| Netflix and DRM | Streaming sites open in WebKit, where they play. Widevine in Chromium waits on Google. | ~ Partly |
-| Intel Macs | Apple Silicon only. | ✗ No |
+**Resize.** Drag the divider between the page and the pane.
 
-<h3 align="center">
-  <a href="https://github.com/mantrakp04/ardia/releases/download/v0.2.42/Ardia-0.2.42.dmg">Download Ardia 0.2.42</a>
-</h3>
+**Switch the rail's profile.** Swipe two fingers across the rail, click the profile button next to the traffic lights, or click a dot at the bottom of the rail.
 
-<p align="center">
-  It’s 111 MB and one drag into Applications.<br>
-  Not on a Mac? Watch › Custom › Releases up top and GitHub tells you when it is.
-</p>
+**Compact sidebar.** Drag the left sidebar's edge below about 120 pt. Drag it wider again to go back.
 
----
+## Build it yourself
 
-# Build it yourself
+There's no prebuilt app for this fork yet, so you build it. These steps follow upstream's `README.md` and `CONTRIBUTING.md` at v0.2.43. Check those first if something differs.
 
-A macOS browser that looks and feels like [Dia](https://diabrowser.com): Chrome's own framework from our
-patched Chromium with our layer on top (ArdiaCore), an Expo + React Native macOS shell, and Metal shaders
-reconstructed from Dia's own New Tab effects.
-
-```
-apps/
-  browser/            Expo + react-native-macos app (UI in src/, Xcode project in macos/)
-packages/
-  ardiacore/             The engine: Chromium 156's framework with our layer (Chrome tabs hosted in our views), JS API in src/
-  shell/              Native menu bar + shortcuts → JS, windows, SF Symbols, native primitives
-  shaders/            Metal: New Tab effects + grained OKLab window backdrop
-  import/             Import from other browsers (bookmarks, history, passwords, Arc spaces)
-  core/               Pure TS: omnibox input → URL, suggestions, Dia-style breadcrumbs (tested)
-```
-
-
-## Run it
-
-Requires Xcode 26+, CocoaPods, Node 22.13+ (pinned in `.nvmrc`), pnpm 11.
+You need an Apple Silicon Mac on macOS 14 or later, Xcode 26+, CocoaPods, Node 22.13+ (see `.nvmrc`) and pnpm 11.
 
 ```bash
+git clone https://github.com/LucidVacx/ardia.git
+cd ardia
+git checkout hanto/rail-0.2.43
+
 pnpm install
-```
-
-The engine (Chrome's framework, built from our patched Chromium) comes prebuilt: with no local engine build, the app's
-build downloads the one matching your checkout's `engine/` (about 110 MB, once; Apple Silicon only) and checks it
-against `packages/ardiacore/prebuilt-engines.tsv`. Every release whose engine changed publishes one. If `main`'s engine
-is newer than the last release's, work from a release tag (`v0.2.30`, say), or run
-`packages/ardiacore/scripts/fetch-engine.sh --nearest` to build against the newest prebuilt anyway. Passkeys and saved
-cards need our team ID and won't work in a build signed by anyone else.
-
-To change the engine itself (anything under `engine/`), build it from source: Chrome's framework from our patched
-Chromium tree in `~/chromium-build` (Chromium 156.0.8078.79 with the patch series in `engine/patches`;
-`docs/engine-build.md` › "Rebuilding", then `engine/chromium/apply.sh`,
-`engine/ardiacore/apply.sh` and `autoninja -C out/Release_GN_arm64 chrome_framework`; the first build takes about 2
-hours). The app's build stages it from there when it exists.
-
-```bash
+packages/ardiacore/scripts/fetch-engine.sh   # prebuilt Chromium engine, about 110 MB, once
 pnpm pods
 ```
 
-In one terminal, start Metro:
+The rail work doesn't touch `engine/`, so the engine that matches an upstream commit applies. `fetch-engine.sh` refuses to run if `engine/` has uncommitted changes. If it can't find a match, `--nearest` builds against the newest prebuilt one. The app's build also runs this step on its own when there's no local engine.
+
+Then, in two terminals:
 
 ```bash
-pnpm dev
+pnpm dev     # Metro, leave it running
+pnpm macos   # builds the Debug app and opens it
 ```
 
-In another, build and launch the Debug app (on its own data, `~/Library/Application Support/Ardia Dev`, or
-`ARDIA_DATA_DIR`):
+`pnpm macos` uses its own data folder (`~/Library/Application Support/Ardia Dev`), so it won't touch an Ardia you already use. `pnpm build` makes a Release `.app` instead.
 
-```bash
-pnpm macos
+### Signing
+
+Upstream's Xcode project is signed with Ardia's own Apple team. To build with yours, pass an xcconfig. This is a template with placeholder values only:
+
+```
+// MyTeam.xcconfig (keep this file out of git)
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = YOUR_TEAM_ID
+CODE_SIGN_IDENTITY = Apple Development
 ```
 
-Other tasks: `pnpm typecheck`, `pnpm test`, `pnpm shaders:check` (compiles the embedded Metal offline),
-`pnpm build` (Release `.app` with a Hermes bytecode bundle in `apps/browser/build/`).
-Signed releases (DMG, Sparkle zip and appcast): `scripts/release.sh <version>`, see `docs/releasing.md`.
+Add `-xcconfig MyTeam.xcconfig` to the `xcodebuild` command in `apps/browser/package.json`, or set the team in Xcode's Signing & Capabilities tab. This template is a starting point and hasn't been tested on every setup.
 
-Shortcuts: ⌘T new tab, ⌘L command bar, ⌘W close, ⇧⌘T reopen, ⌘S sidebar, ⌘[ / ⌘] back/forward,
-⌘R reload, ⌘1–⌘9 select tab, ⌃Tab cycle.
+Two things to know about a custom-signed build:
 
-## How Dia's New Tab light works
+- **Passkeys/WebAuthn and some keychain features need Ardia's own signing team.** They won't work in a build signed by anyone else, upstream says the same.
+- **Auto-update is turned off** in this fork's commit `Local only: Sparkle updater disabled`, so Sparkle can't replace your custom build with the upstream one. You update by pulling and rebuilding. That commit is local-only and not meant for upstream.
 
-Dia 1.50 turns this light off along with its rebrand (a painted mark, a single-colour power-up band
-and a halo around the bar; `docs/dia-spec.md` › "1.50 Sunglow"), and so does Ardia. The
-reconstruction left the tree with it: `git show f2c0e251:packages/shaders/ios/AreaLightView.swift`.
+## Known limitations
 
-These findings come from disassembling the Metal libraries in `Dia.app` (v1.49.1) with
-`xcrun metal-objdump`. `BoostBrowser_PowerUp.bundle/default.metallib` contains
-`breathingAreaLightFragment`, which the Swift class `NewTabPage.NewTabAreaLightView` hosts. The
-reconstruction was `AreaLightView.swift` (above).
+- **Keep-awake is per site.** Rail tabs stay out of Memory Saver by adding their sites to its keep-active list. Other tabs on the same site stay active too. The engine has no per-tab exemption yet.
+- **Reopened windows bring rail tabs back as normal sidebar tabs.**
+- **Swiping over an overflowing rail list doesn't switch profile.** Use the profile button or the dots.
+- **JS dialogs in the side pane are suppressed.** `alert()` and `confirm()` don't show, because Chromium treats the pane as a non-active tab.
+- **No guard for a right-side sidebar yet.** v0.2.43 has no right-side sidebar position, so there's no clash today. Upstream 0.2.44 or later may need the rail to step aside for one.
 
-- **The command bar is a light source.** Dia models the bar as a rounded-rectangle area light floating
-  `lift` points above the page. Each pixel receives the closed-form irradiance of that rectangle: the
-  solid-angle formula, one `atan` term per corner, times 1/2π. Rounded corners subtract (1 − π/4) of
-  each corner square. The result is a physically correct penumbra: a higher lift gives a softer, wider
-  glow.
-- **Falloff** is reshaped from inverse-square to `(h/d)^falloff`, where `d` is the distance to the
-  emitter's rounded-rect surface rather than to its centre.
-- **Colour** is Dia's brand spectrum (`ProgressBarColor2…7` in its asset catalog):
-  blue `#0358F7`, steel `#5092C7`, lavender `#E1E1FE`, yellow `#FFD400`, orange `#FA3D1D` and magenta
-  `#FD02F5`. It is laid out as a wrapping, slightly diagonal gradient that scrolls every 20 s. IQ's 2D
-  simplex noise warps the gradient under the bar, and the warp fades out into the penumbra.
-- **Dark mode** treats the light as HDR emission and applies the Hable/Uncharted-2 filmic tonemap
-  (white point 11.2), with alpha set to Rec.709 luminance. **Light mode** keeps the flat palette
-  colour and uses the irradiance as opacity.
-- **Finishing:** alpha fades over the top 50 pt and bottom 200 pt of the view, and ±3/255 triangular
-  dither (Dave Hoskins' `hash12`) prevents banding in the long soft falloff.
-- **Animation:** the shader itself only scrolls the colours. The lift-off intro and the slow
-  "breathing" come from the CPU, which animates `lift` and `intensity`. Those curves live in Dia's
-  Swift code, so the ones here (quartic ease-out over 1.1 s, ±7% intensity on a 5.5 s sine) are my
-  approximation.
+## Contributing and upstreaming
 
-The **window backdrop** comes from `ARC_WindowThemeUI.bundle`
-(`gradientFragment` + `renderFragment`). Gradient stops are stored and mixed in **OKLab**, then
-converted to linear sRGB and gamma-encoded in the shader. A tiled grain texture is then
-multiply-blended on top. `WindowBackdropView` does the same with procedural grain.
+The plan is to propose these changes to upstream as separate issues and pull requests, one feature at a time: the rail, the compact sidebar, the full-screen corners and the popup fix. Upstream decides what it takes. Its [CONTRIBUTING.md](https://github.com/mantrakp04/ardia/blob/main/CONTRIBUTING.md) says Ardia copies Dia's look on purpose and that restyling changes aren't welcome unless asked for, so the rail may be a hard sell there.
 
-Only math and colour values are reused. No Dia images, fonts or binaries are copied into this repo.
+Issues and PRs on this fork are welcome. Bug reports, ideas, ports to newer upstream versions and screenshots for this README all help. Please keep PRs small and one feature each, so they're easy to carry upstream.
 
-## Architecture notes
+## Credits and license
 
-- **Why Expo SDK 54:** `react-native-macos` tops out at 0.81, which pairs with Expo SDK 54 (whose
-  `ExpoAppDelegate` / `ExpoReactNativeFactory` have macOS code paths).
-- **Legacy architecture.** react-native-macos 0.81's Fabric support is experimental, so the app runs on
-  the legacy architecture. One consequence: Expo's legacy view-manager adapter instantiates a module's
-  *first* view class for every view it declares, so each native view has its own module.
-- **Metro, not `expo start`.** Metro runs through the react-native-macos CLI. `metro.config.js`
-  redirects `react-native` → `react-native-macos` for `platform=macos`, because defining our own
-  `resolveRequest` replaces the redirect the CLI would install.
-- **No Reanimated.** It has no macOS build for 0.81; animations use RN's `Animated`.
-- **Monorepo paths.** pnpm is set to `nodeLinker: hoisted` because CocoaPods and Metro resolve
-  `react-native-macos` by path. The Podfile rewrites `REACT_NATIVE_PATH` to the hoisted location and
-  raises every pod's deployment target to 14.0, since Xcode 26+ rejects the 11.0 some Expo pods declare.
-- **Native subviews** are sized in `setFrameSize`, not `layout()`. RN macOS assigns frames directly and
-  never autoresizes subviews.
-- **Shaders** are Metal source embedded in Swift and compiled at runtime (once per class, cached). This
-  keeps the pods free of a metallib build phase.
+This is built on [Ardia](https://github.com/mantrakp04/ardia) by Mantra Patel. All credit for the browser goes to the upstream project and its contributors. This fork adds only the changes listed above.
 
-## Status
+Following upstream (see `LICENSE`, `LICENSE.Apache-2.0` and `NOTICE`):
 
-Feature parity with Dia (everything but its AI) is tracked row by row in
-[docs/dia-feature-parity.md](docs/dia-feature-parity.md); releases and their notes are at
-[ardia.dev/release-notes](https://ardia.dev/release-notes).
+- Ardia **as distributed** is licensed under the **GNU General Public License v3**, because its engine is built with GPL-3.0 patches.
+- Ardia's **own source files** are under the **Apache License 2.0**.
+- It also builds on Chromium, carries a few Chromium Embedded Framework patches (BSD-3-Clause) and bundles uBlock Origin, each under its own license.
 
-## License
-
-Ardia as distributed is licensed under the [GNU General Public License v3](LICENSE), because its engine is built
-with GPL-3.0 patches. Ardia's own source files are under the [Apache License 2.0](LICENSE.Apache-2.0). It builds on
-Chromium, carries a few of the Chromium Embedded Framework's patches to Chromium (BSD-3-Clause), and bundles uBlock
-Origin, each under its own license; see [NOTICE](NOTICE). Every release links its source.
+Changes in this fork are offered under the same terms. If you distribute a build, the GPL's source requirements apply.
