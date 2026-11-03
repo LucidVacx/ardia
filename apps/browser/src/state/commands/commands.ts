@@ -56,6 +56,7 @@ import {
 import { runPeekCommand } from "../peek/actions";
 import { peekTabId } from "../peek/peek";
 import { expectFocus, findFocus } from "../focus/focusClaims";
+import { focusedSideTab } from "../side/focus";
 
 export function runCommand({ command, arg, windowId: requested }: CommandEvent) {
   const s = useBrowser.getState();
@@ -135,7 +136,9 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent) 
     }
     return;
   }
-  const tabId = (LITTLE_ARDIA_PAGE_COMMANDS.has(command) && peekTabId(s, windowId)) || activeTabId(s, windowId);
+  const pageCommand = LITTLE_ARDIA_PAGE_COMMANDS.has(command);
+  const sideTab = pageCommand || command === "closeTab" || command === "focusCommandBar" ? focusedSideTab(s, windowId) : undefined;
+  const tabId = (pageCommand && peekTabId(s, windowId)) || sideTab || activeTabId(s, windowId);
   const tab = tabId ? s.tabs[tabId] : undefined;
   const page = tab?.url ? tab : undefined;
   const web = tabId ? webviews.get(tabId) : undefined;
@@ -152,6 +155,7 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent) 
     case "restoreClosed":
       return arg ? s.restoreClosed(arg, windowId) : undefined;
     case "focusCommandBar":
+      if (sideTab && tabId === sideTab) return page || !focusHeroBar(windowId, tabId) ? s.openPanel(windowId, page?.url ?? "", undefined, tabId) : undefined;
       if (page) return s.openPanel(windowId, page.url);
       if (isEmptyCardTab(s, tab) && showNewTabBar(windowId)) return;
       if (tab && addressBarInSidebar(s, windowId) && !commandBarCentred(s, windowId)) return s.openPanel(windowId, "");

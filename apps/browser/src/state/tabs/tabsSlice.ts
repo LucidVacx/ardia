@@ -4,7 +4,7 @@ import { fromLegacyUrl } from "../../lib/legacy";
 import { startNavigation } from "../../platform/earlyNavigate";
 import type { BrowserState } from "../browser/store";
 import { syncGroupOrder } from "../groups/groups";
-import { activeTabId, inPinnedContainer, merge, navigationTo, pinSection, snapshotTab, viewTabIds } from "../browser/model";
+import { activeTabId, dockedTabIds, inPinnedContainer, merge, navigationTo, pinSection, snapshotTab, viewTabIds } from "../browser/model";
 import { forgetOpeners, nextToActive, switchKeepsOpeners } from "./openers";
 import { groupWithOpener, onUrlChange } from "../pins/organize";
 import { stepDrop } from "../drag/drops";
@@ -14,6 +14,7 @@ import { holderOf, swapPinPage } from "../pins/pinShare";
 import { engineForUrl, tabEngine, typedNavigationEngine } from "../engines/engines";
 import type { ClosedTab, Tab, TabLive } from "../browser/types";
 import { activated, apply, closingTabs, withNewTab, type CloseOptions, type NewTabOptions } from "./tabs";
+import { shownInSide } from "../side/side";
 
 let pinHandoff: (tabId: string, commit: () => void) => void = (_, commit) => commit();
 export const setPinHandoff = (handoff: typeof pinHandoff) => {
@@ -96,6 +97,7 @@ export const createTabsSlice: StateCreator<BrowserState, [], [], TabsSlice> = (s
     const s = get();
     const tab = s.tabs[id];
     if (!tab) return;
+    if (dockedTabIds(s, s.windows[tab.windowId]).includes(id)) return set(shownInSide(s, id));
     if (!tab.navigation && !tab.adoptId && holderOf(s, id)) return pinHandoff(id, () => get().handOffPin(id));
     const shown = activeTabId(s, tab.windowId);
     let next = apply(s, activated(s, id));

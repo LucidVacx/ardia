@@ -153,6 +153,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
   }
 
   var fullScreenIds = Set<String>()
+  var cornersBeforeFullScreen: [String: (radius: CGFloat, corners: CACornerMask, curve: CALayerCornerCurve, masks: Bool)] = [:]
   var fullScreenQueue: [String] = []
   var fullScreenEntering: String?
   var fullScreenFocus: String?
@@ -255,6 +256,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
     guard let id = id(of: from) else { return }
     NotificationCenter.default.removeObserver(self, name: nil, object: from)
     windows[id] = to
+    cornersBeforeFullScreen[id] = nil
     if lastPlaced === from { lastPlaced = to }
     observeDelegateNotifications(to)
     observeFrame(to)
@@ -376,6 +378,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
       stopKeepingContentSized(id)
       lightsCenters[id] = nil
       fullScreenIds.remove(id)
+      cornersBeforeFullScreen[id] = nil
       auxKinds[id] = nil
       smallIds.remove(id)
       ChromeWindows.close(window)
@@ -422,6 +425,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
     stopKeepingContentSized(id)
     lightsCenters[id] = nil
     fullScreenIds.remove(id)
+    cornersBeforeFullScreen[id] = nil
     auxKinds[id] = nil
     smallIds.remove(id)
     if closingFromJS.remove(id) == nil {

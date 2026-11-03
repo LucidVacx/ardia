@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { closeTab } from "../browser/actions";
 import { menuShortcut } from "../commands/commandShortcuts";
 import { storeAction, useBrowser } from "../browser/store";
-import { activeTabId } from "../browser/model";
+import { activeTabId, dockedTabIds } from "../browser/model";
 import { MAX_SPLIT_PANES, slotsOf, splitOf, type OpenPaneOptions, type SplitSide } from "./splits";
 
 const store = () => useBrowser.getState();
@@ -52,6 +52,7 @@ export function openLinkInSplit(sourceTabId: string, url: string, adoptId?: stri
   const s = store();
   const source = s.tabs[sourceTabId];
   if (!source) return;
+  if (dockedTabIds(s, s.windows[source.windowId]).includes(sourceTabId)) return void s.newTab(source.windowId, { url, adoptId, openerId: sourceTabId, profileId: source.profileId, background: true });
   const split = splitOf(s, sourceTabId);
   const next = split?.tabIds[split.tabIds.indexOf(sourceTabId) + 1];
   const target = split && (next || split.tabIds.length >= MAX_SPLIT_PANES) ? (next ?? split.tabIds.at(-1)) : undefined;

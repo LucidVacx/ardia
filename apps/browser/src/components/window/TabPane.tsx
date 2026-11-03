@@ -3,6 +3,7 @@ import { Animated, View } from "react-native";
 import { layout } from "../ui/theme";
 import { usePrewarm } from "../../state/tabs/prewarm";
 import { activate } from "../../state/tabs/actions";
+import { notePaneFocus } from "../../state/side/focus";
 import { shallowEqual, useBrowserWhile, useStoreWhile, useTabValue } from "../../state/tabs/tabWatch";
 import { useSettings } from "../../state/browser/hooks";
 import { splitOf } from "../../state/splits/splits";
@@ -31,6 +32,7 @@ export const TabPane = memo(function TabPane({
   fullWidth,
   fullHeight,
   focused,
+  side,
   inActiveSplit,
   fullscreen,
   covered,
@@ -52,6 +54,7 @@ export const TabPane = memo(function TabPane({
   fullWidth: number;
   fullHeight: number;
   focused: boolean;
+  side: boolean;
   inActiveSplit: boolean;
   fullscreen: boolean;
   covered: boolean;
@@ -98,7 +101,8 @@ export const TabPane = memo(function TabPane({
     <View
       pointerEvents={visible && !covered ? "auto" : "none"}
       onTouchStart={() => {
-        if (visible && !focused) activate(tabId);
+        if (visible) notePaneFocus(tabId);
+        if (visible && !focused && !side) activate(tabId);
       }}
       style={{
         position: "absolute",
@@ -123,7 +127,7 @@ export const TabPane = memo(function TabPane({
           {visible && !fullscreen && <ShareBar tabId={tabId} />}
           <View style={{ flex: 1 }}>
             {(mounted || prewarmed) && <TabWebView tabId={tabId} visible={visible && !newTabShown && !isNewTab} warm={!!warm && !newTabShown && !isNewTab} />}
-            {visible && isNewTab && !small && (inSplit ? <SplitEmptyState tabId={tabId} focused={focused} /> : emptyCard ? <EmptyCard windowId={windowId} tabId={tabId} /> : <NewTabPage key={tabId} tabId={tabId} toolbar={toolbar} />)}
+            {visible && isNewTab && !small && (inSplit ? <SplitEmptyState tabId={tabId} focused={focused} /> : emptyCard && !side ? <EmptyCard windowId={windowId} tabId={tabId} /> : <NewTabPage key={tabId} tabId={tabId} toolbar={toolbar} />)}
             {visible && <InternalPage tabId={tabId} />}
             {visible && (
               <PageOverlays

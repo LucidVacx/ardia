@@ -16,6 +16,7 @@ import { dismissHover, useRowHover } from "../../state/sidebar/hover";
 import { pressTabClose, useTabCloseControlWhile } from "../../state/sidebar/closeControl";
 import { middleClickTab } from "../../state/sidebar/clearTabs";
 import { openTabMenu } from "../../state/sidebar/menus";
+import { useSidebarCompact } from "./compact";
 import { ACTIVE, ICON_MARKS, LOADING, PLAYING, SELECTED, useRowState } from "../../state/sidebar/rowState";
 import { registerRow, useSidebarUi } from "../../state/sidebar/sidebarUi";
 import { PressFeedback, usePressMotion } from "./PressFeedback";
@@ -49,6 +50,7 @@ export const TabRowItem = memo(function TabRowItem({
 export const TabRow = memo(function TabRow({ tabId, onto = false, shift = null }: { tabId: string; onto?: boolean; shift?: Animated.Value | null }) {
   const theme = useTheme();
   const glow = useSelectedTabGlow();
+  const compact = useSidebarCompact();
   const tokens = useSidebarTokens();
   const windowId = useWindowId();
   const { tab, flags } = useRowState(tabId, windowId);
@@ -86,6 +88,8 @@ export const TabRow = memo(function TabRow({ tabId, onto = false, shift = null }
           }}
         >
           <Pressable
+            tooltip={compact ? title : undefined}
+            accessibilityLabel={compact ? title : undefined}
             onPressIn={() => setPressed(true)}
             onPressOut={() => setPressed(false)}
             onPress={(e) => {
@@ -103,7 +107,7 @@ export const TabRow = memo(function TabRow({ tabId, onto = false, shift = null }
               shadowOpacity={active ? glow.shadowOpacity : 0}
               shadowRadius={glow.shadowRadius}
               shadowOffset={SELECTED_ROW_SHADOW_OFFSET}
-              style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", paddingLeft: 9 - border, paddingRight: 6 - border }}
+              style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", ...(compact ? { justifyContent: "center" } : { paddingLeft: 9 - border, paddingRight: 6 - border }) }}
             >
               {resettable ? (
                 <View {...backToPin.hoverProps}>
@@ -126,12 +130,12 @@ export const TabRow = memo(function TabRow({ tabId, onto = false, shift = null }
                   <TabBadges tabId={tab.id} />
                 </View>
               )}
-              {(playingAudio || tab.muted) && (
+              {!compact && (playingAudio || tab.muted) && (
                 <Pressable onPress={() => toggleMute(tab.id)} style={{ marginLeft: 6 }} tooltip={tab.muted ? "Unmute Site" : "Mute Site"}>
                   <Symbol name={tab.muted ? "speaker.slash" : "speaker.wave.2"} size={12} color={theme.textTab} style={{ width: 18, height: 16 }} />
                 </Pressable>
               )}
-              {renaming ? (
+              {compact ? null : renaming ? (
                 <RenameField
                   initial={tab.customTitle ?? tab.title}
                   placeholder={tab.title || "Tab name"}
@@ -141,14 +145,14 @@ export const TabRow = memo(function TabRow({ tabId, onto = false, shift = null }
               ) : (
                 <FadeLabel text={title} fontSize={font.body.fontSize} color={active ? theme.tabSelectedText : theme.textTab} style={{ flex: 1, height: 18, marginLeft: 5 }} />
               )}
-              <HoverSlot
+              {!compact && <HoverSlot
                 hovered={hovered && !renaming}
                 width={22}
                 reserve="hover"
                 hover={closeControl && <Button variant="icon" icon={closeControl.icon} size={10} weight="semibold" box={22} radius={radius.m} onPress={() => pressTabClose(tab.id)} tooltip={closeControl.tooltip} />}
               >
                 {loading && <ActivitySpinner style={{ width: 12, height: 12, marginRight: 2 }} />}
-              </HoverSlot>
+              </HoverSlot>}
             </Surface>
           </Pressable>
         </ContextMenuArea>
@@ -255,6 +259,7 @@ export const SplitRowItem = memo(function SplitRowItem({
 
 function SplitPane({ tabId, windowId }: { tabId: string; windowId: string }) {
   const theme = useTheme();
+  const compact = useSidebarCompact();
   const tab = useTab(tabId);
   const active = useIsActiveTab(tabId);
   const { hovered, hoverProps } = useRowHover(windowId, { kind: "tab", id: tabId });
@@ -262,7 +267,7 @@ function SplitPane({ tabId, windowId }: { tabId: string; windowId: string }) {
   return (
     <View {...hoverProps} style={{ flex: 1, minWidth: 0 }}>
       <ContextMenuArea onContextMenu={() => void openTabMenu(windowId, tab)}>
-        <Pressable onPress={(e) => clickTab(windowId, tabId, modifiersOf(e))}>
+        <Pressable tooltip={compact ? tabTitle(tab) : undefined} accessibilityLabel={compact ? tabTitle(tab) : undefined} onPress={(e) => clickTab(windowId, tabId, modifiersOf(e))}>
           {({ pressed }) => (
             <PressFeedback pressed={pressed}>
               <View
@@ -271,12 +276,12 @@ function SplitPane({ tabId, windowId }: { tabId: string; windowId: string }) {
                   borderRadius: radius.button,
                   flexDirection: "row",
                   alignItems: "center",
-                  paddingLeft: 6,
+                  ...(compact ? { justifyContent: "center" } : { paddingLeft: 6 }),
                   backgroundColor: active ? undefined : pressed ? theme.tabPressed : hovered ? theme.rowHover : undefined,
                 }}
               >
                 <TabIcon tabId={tab.id} url={tab.url} favicon={tab.favicon} icon={tab.customIcon} size={14} />
-                <FadeLabel text={tabTitle(tab)} fontSize={font.small.fontSize} color={active ? theme.tabSelectedText : theme.textTab} style={{ flex: 1, height: 16, marginLeft: 5 }} />
+                {!compact && <FadeLabel text={tabTitle(tab)} fontSize={font.small.fontSize} color={active ? theme.tabSelectedText : theme.textTab} style={{ flex: 1, height: 16, marginLeft: 5 }} />}
               </View>
             </PressFeedback>
           )}

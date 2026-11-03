@@ -63,6 +63,30 @@ extension WindowManager {
     if isMainWindow(window) {
       emit?("onWindowEvent", ["type": "fullScreen", "id": id, "on": entered && !ChromeWindows.fullScreenIsForPage(window)])
     }
+    roundFullScreenTop(window, id: id, entered)
     if entered, fullScreenEntering == id { enteredFullScreen(id) }
+  }
+}
+
+private let fullScreenTopRadius: CGFloat = 12
+
+private extension WindowManager {
+  func roundFullScreenTop(_ window: NSWindow, id: String, _ on: Bool) {
+    guard let layer = (window.contentView?.superview ?? window.contentView)?.layer else { return }
+    if !on {
+      guard let saved = cornersBeforeFullScreen.removeValue(forKey: id) else { return }
+      layer.cornerRadius = saved.radius
+      layer.maskedCorners = saved.corners
+      layer.cornerCurve = saved.curve
+      layer.masksToBounds = saved.masks
+      return
+    }
+    if cornersBeforeFullScreen[id] == nil {
+      cornersBeforeFullScreen[id] = (layer.cornerRadius, layer.maskedCorners, layer.cornerCurve, layer.masksToBounds)
+    }
+    layer.cornerCurve = .continuous
+    layer.maskedCorners = layer.isGeometryFlipped ? [.layerMinXMinYCorner, .layerMaxXMinYCorner] : [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+    layer.cornerRadius = fullScreenTopRadius
+    layer.masksToBounds = true
   }
 }

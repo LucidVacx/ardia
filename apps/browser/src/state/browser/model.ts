@@ -116,11 +116,14 @@ export function inPinnedContainer(s: Pick<BrowserState, "tabs" | "groups">, id: 
   return false;
 }
 
+export const dockedTabIds = (s: Pick<BrowserState, "settings">, w: BrowserWindow | undefined): string[] => (s.settings.sidePane !== false && w?.side?.tabIds) || [];
+
 export function viewTabIds(s: BrowserState, windowId: string, profileId?: string): string[] {
   const w = s.windows[windowId];
   if (!w) return [];
   const profile = profileId ?? w.profileId;
-  return w.tabIds.filter((id) => s.tabs[id]?.profileId === profile);
+  const docked = dockedTabIds(s, w);
+  return w.tabIds.filter((id) => s.tabs[id]?.profileId === profile && !docked.includes(id));
 }
 
 export function closesWindow(s: BrowserState, id: string): boolean {

@@ -165,7 +165,7 @@ export const UrlField = memo(function UrlField({
   const capture = usePage(tab.id, (p) => p.mediaAccess);
   const openPanel = (text: string) => {
     onFocus();
-    openWindowPanel(windowId, text);
+    openWindowPanel(windowId, text, undefined, tab.id);
   };
   const toggleBookmark = () => {
     toggleBookmarkOfTab(windowId, tab.id);

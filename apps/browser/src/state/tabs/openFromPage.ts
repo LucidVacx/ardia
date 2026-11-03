@@ -1,7 +1,7 @@
 import type { OpenWindowRequest } from "../../platform/tabs";
 import { openWindow } from "../browser/actions";
 import { useBrowser } from "../browser/store";
-import { engineProfile } from "../browser/model";
+import { dockedTabIds, engineProfile } from "../browser/model";
 import { peekSourceOf } from "../peek/peek";
 import { isSmall, originalProfile, privateWindowProfile } from "../windows/small";
 import { openLinkInSplit, openSplitPane } from "../splits/actions";
@@ -13,7 +13,8 @@ export function openFromPage({ url, adoptId, disposition, profile, point }: Open
   const w = s.windows[page.windowId];
   if (!w) return;
   const peekSource = peekSourceOf(s, page.tabId);
-  if (disposition === "current" || (disposition === "peek" && (peekSource || isSmall(s, w.id)))) {
+  const docked = !!page.tabId && dockedTabIds(s, w).includes(page.tabId);
+  if (disposition === "current" || (disposition === "peek" && (peekSource || docked || isSmall(s, w.id)))) {
     if (page.tabId) s.navigate(page.tabId, url, { userInitiated: false });
     return;
   }

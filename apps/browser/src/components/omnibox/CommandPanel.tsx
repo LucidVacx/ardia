@@ -4,10 +4,10 @@ import { AccessibilityInfo, Animated, View, type LayoutChangeEvent } from "react
 import { hex, useTheme } from "../ui/theme";
 import { useWindowId, useWindowUi } from "../../state/browser/hooks";
 import { closePanel } from "../../state/windows/actions";
-import { useActiveTabIdWhile, useCommandBarCentred, useTabHasUrlWhile } from "../../state/omnibox/hooks";
+import { useActiveTabIdWhile, useCommandBarCentred, usePanelTabIdWhile, useTabHasUrlWhile } from "../../state/omnibox/hooks";
 import { usePage } from "../../state/tabs/pageState";
 import { dismissHover, setRowsCovered } from "../../state/sidebar/hover";
-import { useCardAnchors, useUrlAnchors } from "../../state/windows/layout";
+import { sideUrlAnchorKey, useCardAnchors, useUrlAnchors } from "../../state/windows/layout";
 import { barWidth } from "../ntp/NewTabPage";
 import { closeNewTabBar } from "../../state/omnibox/newTabBar";
 import type { NewTabTarget } from "../../state/browser/types";
@@ -41,10 +41,13 @@ export function CommandPanel({ windowWidth }: { windowWidth: number }) {
   const theme = useTheme();
   const windowId = useWindowId();
   const { panel } = useWindowUi();
-  const activeId = useActiveTabIdWhile(windowId, panel.open);
+  const mainId = useActiveTabIdWhile(windowId, panel.open);
+  const targetId = usePanelTabIdWhile(windowId, panel.tabId, panel.open && !panel.newTab);
+  const activeId = panel.newTab ? mainId : targetId;
   const hasField = useTabHasUrlWhile(activeId, panel.open);
   const insecure = usePage(activeId, (p) => !!insecureLevel(p));
-  const anchor = useUrlAnchors((s) => (panel.open ? s[windowId] : undefined));
+  const anchorKey = activeId && activeId !== mainId ? sideUrlAnchorKey(windowId) : windowId;
+  const anchor = useUrlAnchors((s) => (panel.open ? s[anchorKey] : undefined));
   const centred = useCommandBarCentred(windowId, panel.open && !panel.newTab);
   const card = useCardAnchors((s) => (panel.newTab || centred ? s[windowId] : undefined));
   const overRows = panel.open && !panel.newTab && !centred && !!anchor?.sidebar;

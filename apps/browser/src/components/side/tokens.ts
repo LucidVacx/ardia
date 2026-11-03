@@ -1,0 +1,14 @@
+export const SIDE_PANE_DEFAULT = 420;
+export const SIDE_PANE_MAX = 1400;
+export const SIDE_RAIL_WIDTH = 48;
+export const SIDE_RAIL_ICON = 32;
+export const SIDE_RAIL_TOP = 40;
+export const SIDE_RAIL_DOT = 6;
+export const SIDE_RAIL_DOTS_BOTTOM = 12;
+export const SIDE_RAIL_DOTS_GAP = 2;
+export const SIDE_RAIL_DOT_SELECTED = 0.85;
+export const SIDE_RAIL_DOT_IDLE = 0.2;
+export const SIDE_RAIL_COMMIT = 0.35;
+export const SIDE_RAIL_FLICK = 300;
+export const SIDE_RAIL_RUBBER = 0.3;
+export const SIDE_RAIL_GAP = 6;

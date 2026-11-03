@@ -53,6 +53,9 @@ export type Settings = {
   videoUpscaling: boolean;
   sidebarMediaControls: boolean;
   sidebarWidth: number;
+  sidePane: boolean;
+  sidePaneWidth: number;
+  sidebarCompact: boolean;
   showSidebarButton: boolean;
   showClearButton: boolean;
   balancedTopApps: boolean;
@@ -144,6 +147,9 @@ export const DEFAULT_SETTINGS: Settings = {
   videoUpscaling: true,
   sidebarMediaControls: true,
   sidebarWidth: 190,
+  sidePane: true,
+  sidePaneWidth: 420,
+  sidebarCompact: false,
   showSidebarButton: true,
   showClearButton: true,
   balancedTopApps: false,

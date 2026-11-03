@@ -1,7 +1,7 @@
 import type { BrowserState } from "../browser/store";
 import { changedIds } from "../browser/changes";
 import { orderSections, syncGroupOrder, withParent } from "../groups/groups";
-import { IDLE_LIVE, inPinnedContainer, newId, pinnedFirst } from "../browser/model";
+import { dockedTabIds, IDLE_LIVE, inPinnedContainer, newId, pinnedFirst } from "../browser/model";
 import { hasOwnOrSharedPage, hasPage } from "./pageSession";
 import { chainOf, copyOf, hasDuplicates, keyField, mirrored, pinKeyOf, profilesOf, sectionOf, signature, treeOrder, union } from "../pins/pinMirror";
 import { removeTabs, withNewTab } from "./tabs";
@@ -16,13 +16,14 @@ export const sharesTabs = (s: Pick<BrowserState, "settings">) => !!s.settings?.s
 const listable = (t: Tab) => !t.pinned && !!t.url && !t.liveItem;
 
 export function sharedListTab(s: BrowserState, t: Tab): boolean {
-  return sharesTabs(s) && listable(t) && mirrored(s.windows[t.windowId]) && !inPinnedContainer(s, t.id) && s.peeks[t.windowId]?.tabId !== t.id;
+  return sharesTabs(s) && listable(t) && mirrored(s.windows[t.windowId]) && !inPinnedContainer(s, t.id) && !dockedTabIds(s, s.windows[t.windowId]).includes(t.id) && s.peeks[t.windowId]?.tabId !== t.id;
 }
 
 function listMember(s: BrowserState): (t: Tab) => boolean {
   const pinnedMembers = new Set(Object.values(s.groups).filter((g) => g.pinned).flatMap((g) => g.tabIds));
   const inSplit = new Set(Object.values(s.splits).flatMap((v) => v.tabIds));
-  return (t) => listable(t) && !pinnedMembers.has(t.id) && !inSplit.has(t.id) && s.peeks[t.windowId]?.tabId !== t.id;
+  const docked = new Set(Object.values(s.windows).flatMap((w) => dockedTabIds(s, w)));
+  return (t) => listable(t) && !pinnedMembers.has(t.id) && !inSplit.has(t.id) && !docked.has(t.id) && s.peeks[t.windowId]?.tabId !== t.id;
 }
 
 const listGroupsOf = (s: Pick<BrowserState, "groups">) => Object.values(s.groups).filter((g) => !g.pinned);
@@ -34,6 +35,7 @@ function listSection(s: BrowserState, windowId: string, profileId: string, membe
 const LIST_FIELDS = ["pinned", "profileId", "windowId", "pinKey", "customTitle", "customIcon", "liveItem", "pageIn"] as const;
 function listMayDiffer(s: BrowserState, prev: BrowserState): boolean {
   if (s.windows !== prev.windows || s.groups !== prev.groups || s.splits !== prev.splits || s.peeks !== prev.peeks) return true;
+  if (s.settings.sidePane !== prev.settings.sidePane) return true;
   if (s.tabs === prev.tabs) return false;
   for (const id of changedIds(s.tabs, prev.tabs)) {
     const a = s.tabs[id];
@@ -57,7 +59,8 @@ function swapPlaces(s: BrowserState, a: string, b: string): BrowserState {
   for (const id of new Set([ta.windowId, tb.windowId])) {
     const w = windows[id]!;
     const activeTabIds = moved ? Object.fromEntries(Object.entries(w.activeTabIds).map(([p, x]) => [p, x === a ? b : x === b ? a : x])) : w.activeTabIds;
-    windows[id] = { ...w, tabIds: swapIn(w.tabIds, a, b), activeTabIds };
+    const side = w.side && { side: { ...w.side, tabIds: swapIn(w.side.tabIds, a, b), shown: Object.fromEntries(Object.entries(w.side.shown ?? {}).map(([p, x]) => [p, x === a ? b : x === b ? a : x])) } };
+    windows[id] = { ...w, tabIds: swapIn(w.tabIds, a, b), activeTabIds, ...side };
   }
   const swapAll = <T extends { tabIds: string[] }>(all: Record<string, T>): Record<string, T> => {
     let out = all;

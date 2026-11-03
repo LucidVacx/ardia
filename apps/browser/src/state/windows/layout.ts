@@ -4,6 +4,7 @@ import { ARC_LIGHTS_CENTER, LIGHTS_CENTER, lightsCenter, TOP_STRIP_LIGHTS_CENTER
 import { DEFAULT_SIDEBAR_WIDTH } from "../../lib/windowLayout";
 import { useBrowser, type BrowserState } from "../browser/store";
 import { useWindowId } from "../browser/hooks";
+import { savedSidebarWidth } from "../sidebar/compact";
 
 export function useTabLayout(): "sidebar" | "top" {
   const windowId = useWindowId();
@@ -15,6 +16,7 @@ export function addressBarInSidebar(s: BrowserState, windowId: string): boolean 
   return (
     !!w &&
     s.settings.addressBar === "sidebar" &&
+    !s.settings.sidebarCompact &&
     (w.sidebarOpen || switchOn("sidebarSlide")) &&
     (w.tabLayout ?? s.settings.tabLayout) === "sidebar"
   );
@@ -34,10 +36,12 @@ export function openingLightsCenter(s: BrowserState, windowId: string): [number,
   if (!w) return null;
   const open = w.sidebarOpen ?? true;
   if ((w.tabLayout ?? s.settings.tabLayout) === "top") return open ? [...TOP_STRIP_LIGHTS_CENTER] : lightsCenter(DEFAULT_SIDEBAR_WIDTH);
-  return lightsCenter(open ? 0 : (s.settings.sidebarWidth ?? DEFAULT_SIDEBAR_WIDTH), 0, s.settings.addressBar === "sidebar" ? ARC_LIGHTS_CENTER : LIGHTS_CENTER);
+  return lightsCenter(open ? 0 : savedSidebarWidth(s.settings), 0, s.settings.addressBar === "sidebar" && !s.settings.sidebarCompact ? ARC_LIGHTS_CENTER : LIGHTS_CENTER);
 }
 
 type UrlAnchor = { left: number; top: number; width: number; sidebar?: { height: number } };
+
+export const sideUrlAnchorKey = (windowId: string) => `${windowId}:side`;
 
 export const useUrlAnchors = create<Record<string, UrlAnchor>>()(() => ({}));
 

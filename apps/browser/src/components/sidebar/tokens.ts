@@ -3,6 +3,7 @@ import { colorRoles, ink, shadow, type ShadowLevel } from "../ui/tokens";
 import { useSettings } from "../../state/browser/hooks";
 import type { GroupColor } from "../../state/browser/types";
 import { useSidebarUi } from "../../state/sidebar/sidebarUi";
+import { savedSidebarWidth } from "../../state/sidebar/compact";
 
 const DARK = {
   groupFill: "rgba(255,255,255,0.1)",
@@ -153,7 +154,7 @@ export const SIDEBAR_MIN_WIDTH = 160;
 export const SIDEBAR_MAX_WIDTH = 400;
 
 export function useSidebarWidth(windowId: string): number {
-  const saved = useSettings((st) => st.sidebarWidth ?? layout.sidebarWidth);
+  const saved = useSettings(savedSidebarWidth);
   const dragging = useSidebarUi((u) => u.dragWidth[windowId]);
   return dragging ?? saved;
 }

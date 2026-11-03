@@ -15,6 +15,8 @@ import { settleTileFolders } from "../pins/tileFolders";
 import { createProfilesSlice, DEFAULT_PROFILE, engineIdOf, type ProfilesSlice } from "../profiles/profiles";
 import { createSettingsSlice, DEFAULT_SETTINGS, migrateSavedSettings, type SettingsSlice } from "../settings/settings";
 import { createSplitsSlice, sanitizeSplits, type SplitsSlice } from "../splits/splits";
+import { createSideSlice, type SideSlice } from "../side/side";
+import { settledSide, settleSides } from "../side/prune";
 import { activated, apply } from "../tabs/tabs";
 import { createTabsSlice, type TabsSlice } from "../tabs/tabsSlice";
 import { transactional } from "./transaction";
@@ -28,6 +30,7 @@ export type BrowserState = ProfilesSlice &
   GroupsSlice &
   OrganizeSlice &
   SplitsSlice &
+  SideSlice &
   HistorySlice &
   BookmarksSlice &
   SettingsSlice &
@@ -92,6 +95,7 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
   ...createGroupsSlice(...a),
   ...createOrganizeSlice(...a),
   ...createSplitsSlice(...a),
+  ...createSideSlice(...a),
   ...createHistorySlice(...a),
   ...createBookmarksSlice(...a),
   ...createSettingsSlice(...a),
@@ -133,8 +137,10 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
       if (!tabIds.length) continue;
       const activeTabIds = Object.fromEntries(Object.entries(w.activeTabIds).filter(([p, id]) => tabs[id]?.profileId === p));
       const profileId = tabIds.some((id) => tabs[id]!.profileId === w.profileId) ? w.profileId : tabs[tabIds[0]!]!.profileId;
-      activeTabIds[profileId] ??= tabIds.find((id) => tabs[id]!.profileId === profileId)!;
-      windows[w.id] = { ...w, tabIds, profileId, activeTabIds };
+      const mine = tabIds.filter((id) => tabs[id]!.profileId === profileId);
+      activeTabIds[profileId] ??= mine.find((id) => !w.side?.tabIds.includes(id)) ?? mine[0]!;
+      const side = settledSide({ tabs, groups: data.groups ?? {}, splits: data.splits ?? {}, profiles }, { ...w, tabIds, activeTabIds });
+      windows[w.id] = { ...w, tabIds, profileId, activeTabIds, side };
     }
     for (const t of Object.values(tabs)) if (!windows[t.windowId]) delete tabs[t.id];
     const windowOrder = [...(data.windowOrder ?? []).filter((id) => windows[id]), ...Object.keys(windows).filter((id) => !data.windowOrder?.includes(id))];
@@ -215,6 +221,11 @@ useBrowser.subscribe((s, prev) => {
 
 useBrowser.subscribe((s, prev) => {
   const next = settlePeeks(s, prev);
+  if (next) useBrowser.setState(next);
+});
+
+useBrowser.subscribe((s, prev) => {
+  const next = settleSides(s, prev);
   if (next) useBrowser.setState(next);
 });
 

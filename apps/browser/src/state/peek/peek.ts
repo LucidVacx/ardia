@@ -1,6 +1,6 @@
 import type { StateCreator } from "zustand";
 import type { BrowserState } from "../browser/store";
-import { activeTabId, IDLE_LIVE, makeTab, navigationTo, pinnedFirst, without } from "../browser/model";
+import { activeTabId, dockedTabIds, IDLE_LIVE, makeTab, navigationTo, pinnedFirst, without } from "../browser/model";
 import { forgetOpeners, insertionIndex } from "../tabs/openers";
 import { groupWithOpener } from "../pins/organize";
 import { hasNavigatedPage } from "../tabs/pageSession";
@@ -68,7 +68,7 @@ export const createPeekSlice: StateCreator<BrowserState, [], [], PeekSlice> = (s
     let s = get();
     const source = s.tabs[sourceTabId];
     const w = source ? s.windows[source.windowId] : undefined;
-    if (!source || !w || isSmall(s, w.id) || !peekable(url) || !w.tabIds.includes(sourceTabId)) return "";
+    if (!source || !w || isSmall(s, w.id) || !peekable(url) || !w.tabIds.includes(sourceTabId) || dockedTabIds(s, w).includes(sourceTabId)) return "";
     s = withoutPeek(s, w.id);
     if (activeTabId(s, w.id) !== sourceTabId) s = apply(s, activated(s, sourceTabId));
     const tab = { ...makeTab(w.id, source.profileId, url), openerId: sourceTabId, navigation: navigationTo(url, true) };

@@ -1,7 +1,7 @@
 import type { BrowserState } from "../browser/store";
 import { autoGroupName } from "../groups/groupNames";
 import { ancestorIds, canNest, commonGroup, innermostGroupOf, insertAll, leaveGroups, nestGroups, orderSections, placeBlock, placeGroups, reparent, syncGroupOrder, withParent } from "../groups/groups";
-import { inPinnedContainer, isIncognitoProfile, isPinnedRow, newId } from "../browser/model";
+import { dockedTabIds, inPinnedContainer, isIncognitoProfile, isPinnedRow, newId } from "../browser/model";
 import { withSplitRows } from "../splits/splits";
 import { groupChoiceKey, nextPinChoice, placeChoiceKey } from "./pinChoices";
 import type { BrowserWindow, Tab, TabGroup } from "../browser/types";
@@ -30,7 +30,7 @@ export function groupWithOpener(s: BrowserState, tabId: string, openerId: string
   const tab = s.tabs[tabId];
   const opener = s.tabs[openerId];
   if (!tab || !opener) return s;
-  if (opener.windowId !== tab.windowId || opener.profileId !== tab.profileId) return s;
+  if (opener.windowId !== tab.windowId || opener.profileId !== tab.profileId || dockedTabIds(s, s.windows[opener.windowId]).includes(openerId)) return s;
   const w = s.windows[tab.windowId]!;
   if (inPinnedContainer(s, openerId)) {
     const gathered = pinnedChildGroup(s, openerId, tab.profileId);

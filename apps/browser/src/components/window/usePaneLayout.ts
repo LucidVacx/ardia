@@ -3,22 +3,31 @@ import { successorWhenLeaving, useMountedTabIds, useShownPaneKeys, useSplitsOf, 
 import { pagerFor } from "../../state/windows/profilePager";
 import { useTabDrag } from "../../state/drag/tabDrag";
 import type { SplitView } from "../../state/browser/types";
-import { splitGeometry, type Rect } from "./geometry";
+import { SIDE_PANE_GAP, splitGeometry, type Rect } from "./geometry";
 
-export function usePaneLayout(windowId: string, activeId: string | undefined, split: SplitView | undefined, fullscreenTab: string | undefined, size: { width: number; height: number }) {
+export function usePaneLayout(
+  windowId: string,
+  activeId: string | undefined,
+  split: SplitView | undefined,
+  fullscreenTab: string | undefined,
+  size: { width: number; height: number },
+  side?: { tabId: string; width: number },
+) {
   const mounted = useMountedTabIds(windowId);
 
   const mountedIds = useMemo(() => new Set(mounted), [mounted]);
 
+  const mainWidth = side ? size.width - side.width - SIDE_PANE_GAP : size.width;
   const { panes, dividers } = useMemo(() => {
     const full: Rect = { x: 0, y: 0, width: size.width, height: size.height };
     if (fullscreenTab) {
       const under = split?.tabIds.includes(fullscreenTab) ? splitGeometry(split, size.width, size.height).panes : {};
       return { panes: { ...under, [fullscreenTab]: full }, dividers: [] };
     }
-    if (split) return splitGeometry(split, size.width, size.height);
-    return { panes: activeId ? { [activeId]: full } : {}, dividers: [] };
-  }, [split, activeId, fullscreenTab, size.width, size.height]);
+    const main = split ? splitGeometry(split, mainWidth, size.height) : { panes: activeId ? { [activeId]: { ...full, width: mainWidth } } : {}, dividers: [] };
+    if (!side) return main;
+    return { ...main, panes: { ...main.panes, [side.tabId]: { x: mainWidth + SIDE_PANE_GAP, y: 0, width: side.width, height: size.height } } };
+  }, [split, activeId, fullscreenTab, size.width, size.height, side?.tabId, side?.width]);
 
   useEffect(() => wakePanes(Object.keys(panes)), [panes]);
 
@@ -29,10 +38,10 @@ export function usePaneLayout(windowId: string, activeId: string | undefined, sp
   const warmSplits = useSplitsOf(warm);
   const warmPanes = useMemo(() => {
     const out: Record<string, Rect> = {};
-    for (const id of warm) out[id] = { x: 0, y: 0, width: size.width, height: size.height };
-    for (const v of warmSplits) Object.assign(out, splitGeometry(v, size.width, size.height).panes);
+    for (const id of warm) out[id] = { x: 0, y: 0, width: mainWidth, height: size.height };
+    for (const v of warmSplits) Object.assign(out, splitGeometry(v, mainWidth, size.height).panes);
     return out;
-  }, [warm, warmSplits, size.width, size.height]);
+  }, [warm, warmSplits, mainWidth, size.height]);
 
   const shown = useShownPaneKeys(mounted, panes);
 

@@ -36,7 +36,7 @@ function foldersUnderRoots(groups: BrowserState["groups"]): Map<string, string> 
 
 export function stripEntries(s: BrowserState, windowId: string, profileId: string): string[] {
   const key = `${windowId}|${profileId}`;
-  const inputs = [s.tabs, s.windows, s.groups, s.splits, s.settings.newTabOpens];
+  const inputs = [s.tabs, s.windows, s.groups, s.splits, s.settings.newTabOpens, s.settings.sidePane];
   const cached = stripMemo.get(key);
   if (cached && cached.inputs.every((v, i) => v === inputs[i])) return cached.result;
   const groups = groupIndex(s.groups);

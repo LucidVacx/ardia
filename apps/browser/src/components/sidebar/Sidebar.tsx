@@ -26,6 +26,8 @@ import { GLOW_ROOM, ROW_PITCH, type SidebarGeometry } from "./pageLayout";
 import { SidebarPage } from "./SidebarPage";
 import { SidebarRowLookContext, useSidebarRowLookSource } from "./rowLook";
 import { useRevealTabs } from "./useRevealTabs";
+import { SidebarCompactContext } from "./compact";
+import { SIDEBAR_MIN_WIDTH } from "./tokens";
 
 export function Sidebar({ width }: { width: number }) {
   const windowId = useWindowId();
@@ -45,6 +47,7 @@ export function Sidebar({ width }: { width: number }) {
   const footer = dots || footerDownloads ? PROFILE_DOTS_HEIGHT : 0;
   const nothingPinned = useNoTiles(windowId, current);
   const rowLook = useSidebarRowLookSource();
+  const compact = width < SIDEBAR_MIN_WIDTH;
 
   const drag = useRef<DragController | null>(null);
   const onScrollView = useCallback((v: ScrollView | null) => {
@@ -63,6 +66,7 @@ export function Sidebar({ width }: { width: number }) {
   useLayoutEffect(() => dismissHoverIn(windowId), [windowId, current, paging]);
 
   return (
+    <SidebarCompactContext.Provider value={compact}>
     <DragProvider>
       {(ghost: Ghost | null, controller) => {
         drag.current = controller;
@@ -118,7 +122,7 @@ export function Sidebar({ width }: { width: number }) {
 
             <View style={{ height: header }}>
               <WindowDragRegion style={StyleSheet.absoluteFill} />
-              {addressBar ? (
+              {compact ? null : addressBar ? (
                 <>
                   <SidebarHeaderTools width={width} />
                   <SidebarAddressRow width={width} />
@@ -146,5 +150,6 @@ export function Sidebar({ width }: { width: number }) {
         );
       }}
     </DragProvider>
+    </SidebarCompactContext.Provider>
   );
 }

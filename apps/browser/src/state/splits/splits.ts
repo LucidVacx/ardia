@@ -1,11 +1,13 @@
 import type { StateCreator } from "zustand";
 import type { BrowserState } from "../browser/store";
 import { innermostGroupOf, leaveGroups, syncGroupOrder } from "../groups/groups";
-import { inPinnedContainer, isPinnedRow, newId } from "../browser/model";
+import { dockedTabIds, inPinnedContainer, isPinnedRow, newId } from "../browser/model";
 import { placing } from "../pins/organize";
 import { choose } from "../settings/settings";
 import { activated, apply, removeTabs, withNewTab } from "../tabs/tabs";
 import type { BrowserWindow, SplitView, Tab } from "../browser/types";
+
+const inSide = (s: BrowserState, tabId: string) => dockedTabIds(s, s.windows[s.tabs[tabId]?.windowId ?? ""]).includes(tabId);
 
 export type SplitsSlice = {
   splits: Record<string, SplitView>;
@@ -200,7 +202,7 @@ export const createSplitsSlice: StateCreator<BrowserState, [], [], SplitsSlice> 
     const tabs = [...new Set(tabIds)].map((id) => s.tabs[id]).filter((t): t is Tab => !!t);
     const first = tabs[0];
     if (tabs.length < 2 || tabs.length > MAX_SPLIT_PANES || !first) return "";
-    if (tabs.some((t) => t.windowId !== first.windowId || t.profileId !== first.profileId)) return "";
+    if (tabs.some((t) => t.windowId !== first.windowId || t.profileId !== first.profileId || inSide(s, t.id))) return "";
     const ids = tabs.map((t) => t.id);
     const splits = removeFromSplits(s.splits, new Set(ids));
     const split: SplitView = { id: newId("split"), windowId: first.windowId, tabIds: ids, orientation, sizes: equal(ids.length) };
@@ -213,7 +215,7 @@ export const createSplitsSlice: StateCreator<BrowserState, [], [], SplitsSlice> 
     const w = s.windows[windowId];
     const anchorId = o.anchorTabId ?? (w ? w.activeTabIds[w.profileId] : undefined);
     const anchor = anchorId ? s.tabs[anchorId] : undefined;
-    if (!w || !anchor || anchor.windowId !== windowId) return { ok: false, reason: "invalid" };
+    if (!w || !anchor || anchor.windowId !== windowId || inSide(s, anchor.id) || (o.tabId && inSide(s, o.tabId))) return { ok: false, reason: "invalid" };
     const existing = Object.values(s.splits).find((v) => v.tabIds.includes(anchor.id));
     const replaced = o.inPlaceOf && o.inPlaceOf !== anchor.id && existing?.tabIds.includes(o.inPlaceOf) ? o.inPlaceOf : undefined;
     if (existing && existing.tabIds.length >= MAX_SPLIT_PANES && !replaced) return { ok: false, reason: "max" };
@@ -248,7 +250,7 @@ export const createSplitsSlice: StateCreator<BrowserState, [], [], SplitsSlice> 
     const split = splitOf(s, paneTabId);
     const pane = s.tabs[paneTabId];
     const tab = s.tabs[tabId];
-    if (!split || !pane || !tab || split.tabIds.includes(tabId) || tab.windowId !== pane.windowId || tab.profileId !== pane.profileId) return;
+    if (!split || !pane || !tab || split.tabIds.includes(tabId) || tab.windowId !== pane.windowId || tab.profileId !== pane.profileId || inSide(s, tabId)) return;
     s = { ...s, splits: removeFromSplits(s.splits, new Set([tabId])) };
     s = gather(s, paneTabId, [paneTabId, tabId]);
     const current = s.splits[split.id]!;

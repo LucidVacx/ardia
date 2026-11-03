@@ -77,7 +77,7 @@ NSString *PopupOriginText(NSString *url) {
 
 - (void)drawRect:(NSRect)dirtyRect {
   [NSColor.windowBackgroundColor setFill];
-  NSRectFill(dirtyRect);
+  NSRectFill(self.bounds);
   [NSColor.separatorColor setFill];
   NSRectFillUsingOperation(NSMakeRect(0, 0, NSWidth(self.bounds), 1 / MAX(self.window.backingScaleFactor, 1)),
                            NSCompositingOperationSourceOver);

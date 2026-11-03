@@ -1,5 +1,6 @@
 import { resolveInput } from "@ardia/core";
 import { fromLegacyUrl } from "../../lib/legacy";
+import { prunedSide } from "../side/prune";
 import type { BrowserState } from "../browser/store";
 import { ancestorIds, closedGroupInfo, innermostGroupOf, leaveGroups } from "../groups/groups";
 import {
@@ -154,7 +155,7 @@ export function removeTabs(s: BrowserState, ids: string[], record: boolean): Bro
     const activeTabIds = { ...w.activeTabIds };
     for (const [profileId, activeId] of Object.entries(w.activeTabIds)) {
       if (!gone.has(activeId)) continue;
-      const before = w.tabIds.filter((id) => s.tabs[id]?.profileId === profileId);
+      const before = viewTabIds(s, w.id, profileId);
       const left = before.filter((id) => !gone.has(id));
       const awake = left.filter((id) => !s.tabs[id]?.unloaded);
       const after = awake.length ? awake : left;
@@ -163,7 +164,7 @@ export function removeTabs(s: BrowserState, ids: string[], record: boolean): Bro
       if (next) activeTabIds[profileId] = next;
       else delete activeTabIds[profileId];
     }
-    windows[w.id] = { ...w, tabIds, activeTabIds };
+    windows[w.id] = { ...w, tabIds, activeTabIds, ...(w.side ? { side: prunedSide(w.side, (id) => !gone.has(id)) } : {}) };
   }
   tabs = adoptOrphans(without(tabs, gone), s.tabs, gone);
 
@@ -256,7 +257,7 @@ function backToPin(s: BrowserState, t: Tab): Partial<Tab> {
 
 function lastRegularTab(s: BrowserState, w: BrowserWindow, id: string, closing: Set<string>): string | undefined {
   const profileId = s.tabs[id]!.profileId;
-  const candidates = w.tabIds.filter((t) => !closing.has(t) && s.tabs[t]?.profileId === profileId && !inPinnedContainer(s, t));
+  const candidates = viewTabIds(s, w.id, profileId).filter((t) => !closing.has(t) && !inPinnedContainer(s, t));
   const panes = splitOf(s, id)?.tabIds.filter((t) => candidates.includes(t)) ?? [];
   const pool = panes.length ? panes : candidates;
   return pool.reduce<string | undefined>((best, t) => (!best || s.tabs[t]!.lastActiveAt > s.tabs[best]!.lastActiveAt ? t : best), undefined);

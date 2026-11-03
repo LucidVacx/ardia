@@ -1,7 +1,7 @@
 import type { StateCreator } from "zustand";
 import type { BrowserState } from "../browser/store";
 import { bookmarkRoots, ensureRoots, removeBookmarkTree } from "../bookmarks/bookmarks";
-import { newId, setSharedDataIds, viewTabIds, without } from "../browser/model";
+import { dockedTabIds, newId, setSharedDataIds, viewTabIds, without } from "../browser/model";
 import { DEFAULT_PROFILE_ID } from "../settings/settings";
 import { activated, apply, removeTabs, withNewTab } from "../tabs/tabs";
 import type { Profile, ProfileColor } from "../browser/types";
@@ -123,7 +123,8 @@ export const createProfilesSlice: StateCreator<BrowserState, [], [], ProfilesSli
 
       for (const w of Object.values(s.windows)) {
         if (w.profileId !== id) continue;
-        const other = w.tabIds.find((t) => s.tabs[t]?.profileId !== id);
+        const docked = dockedTabIds(s, w);
+        const other = w.tabIds.find((t) => s.tabs[t]?.profileId !== id && !docked.includes(t));
         if (other) s = apply(s, activated(s, w.activeTabIds[s.tabs[other]!.profileId] ?? other));
         else {
           const [next, tab] = withNewTab(s, w.id, { profileId: fallback, background: true });
@@ -138,6 +139,8 @@ export const createProfilesSlice: StateCreator<BrowserState, [], [], ProfilesSli
       const windows = { ...s.windows };
       for (const w of Object.values(windows)) {
         if (w.activeTabIds[id]) windows[w.id] = { ...w, activeTabIds: without(w.activeTabIds, [id]) };
+        const side = windows[w.id]!.side;
+        if (side?.profileId === id) windows[w.id] = { ...windows[w.id]!, side: { ...side, profileId: undefined } };
       }
       const roots = bookmarkRoots(s.bookmarks, id);
       set({

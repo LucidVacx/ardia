@@ -6,7 +6,7 @@ import { layout, useTheme } from "../ui/theme";
 import { spring, curve } from "../ui/motion";
 import { Panel, WindowDragRegion } from "../ui";
 import { SHADOWS } from "./tokens";
-import { useWindowId } from "../../state/browser/hooks";
+import { useSettings, useWindow, useWindowId } from "../../state/browser/hooks";
 import { useSidebarDockState } from "../../state/windows/hooks";
 import { Sidebar } from "../sidebar/Sidebar";
 import { dismissHoverIn } from "../../state/sidebar/hover";
@@ -34,6 +34,9 @@ import {
 } from "../../state/windows/dockMotion";
 import { useTabDrag } from "../../state/drag/tabDrag";
 import { usePeek } from "./usePeek";
+import { useIsSmallWindow } from "../../state/windows/card";
+import { SideRail } from "../side/SideRail";
+import { SIDE_RAIL_WIDTH } from "../side/tokens";
 
 let reduceMotion = false;
 AccessibilityInfo.isReduceMotionEnabled().then(
@@ -137,6 +140,10 @@ export function DockedLayout({
   const stripY = useMemo(() => dock.interpolate({ inputRange: [0, 1], outputRange: [-inset.top, 0] }), [dock, inset.top]);
   const stripShown = topTabs && (open || !away);
   const moving = useDockMotion((m) => !!m.moving[windowId]);
+  const small = useIsSmallWindow(windowId);
+  const sidePane = useSettings((st) => st.sidePane !== false);
+  const incognito = useWindow(windowId, (w) => !!w?.incognito);
+  const rail = sidePane && !fullscreen && !small && !incognito;
   useTopStripLights(windowId, dock, topTabs && !fullscreen, inset.top, open);
   return (
     <>
@@ -148,7 +155,7 @@ export function DockedLayout({
                 flex: 1,
                 flexDirection: "row",
                 paddingTop: topTabs ? top : inset.top,
-                paddingRight: inset.right,
+                paddingRight: rail ? SIDE_RAIL_WIDTH : inset.right,
                 paddingBottom: inset.bottom,
                 paddingLeft: topTabs ? inset.left : left,
               }
@@ -167,6 +174,11 @@ export function DockedLayout({
           </Animated.View>
         )}
       {topStrip && topTabs && !stripShown && topStrip.peek}
+      {rail && (
+        <Animated.View style={{ position: "absolute", right: 0, top: topTabs ? top : 0, bottom: 0, width: SIDE_RAIL_WIDTH }}>
+          <SideRail windowId={windowId} topTabs={topTabs} />
+        </Animated.View>
+      )}
       {!topTabs && <SidebarDock dock={dock} open={open} width={width} fullscreen={fullscreen} arc={arc} lights={lights} />}
     </>
   );

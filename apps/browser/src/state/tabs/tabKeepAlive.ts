@@ -1,9 +1,10 @@
 import type { BrowserState } from "../browser/store";
-import { activeTabId } from "../browser/model";
+import { activeTabId, dockedTabIds } from "../browser/model";
 import { useMedia } from "../media/media";
 import { isInternalTab } from "../pages/urls";
 import { peekTabId } from "../peek/peek";
 import { splitOf } from "../splits/splits";
+import { shownSideTab } from "../side/side";
 import { pageOf } from "./pageState";
 import type { webviews } from "../../platform/webviews";
 
@@ -14,6 +15,8 @@ const EVAL_TIMEOUT_MS = 2_000;
 export function shownTabIds(s: BrowserState): Set<string> {
   const shown = new Set<string>();
   for (const w of Object.values(s.windows)) {
+    const side = shownSideTab(s, w.id);
+    if (side) shown.add(side);
     const id = activeTabId(s, w.id);
     if (!id) continue;
     shown.add(id);
@@ -42,6 +45,7 @@ export function keepAliveReason(s: BrowserState, id: string): string | null {
   const session = media.sessions[id];
   if (session?.playbackState === "playing" || (tab.pinned && session)) return "media";
   if (splitOf(s, id)) return "in a split";
+  if (dockedTabIds(s, s.windows[tab.windowId]).includes(id)) return "on the secondary tab rail";
   return null;
 }
 

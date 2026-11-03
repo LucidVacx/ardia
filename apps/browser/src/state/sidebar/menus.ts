@@ -131,6 +131,7 @@ export async function openTabMenu(windowId: string, tab: Tab) {
       title: "Move to",
       symbol: "arrow.right.square",
       children: [
+        ...(housed || incognito || s.settings.sidePane === false ? [] : [{ id: "side", title: "Secondary Tab Rail", symbol: "sidebar.right" }]),
         ...(splitRow || pinSection(tab) === "tile" ? [] : [{ id: "pinTile", title: "Top Apps", symbol: "app" }]),
         ...(splitRow || isPinnedRow(tab) ? [] : [{ id: "pinRow", title: pinnedSectionTitle(s, tab), symbol: "list.bullet" }]),
         ...(pinSection(tab) !== "tile"
@@ -189,6 +190,7 @@ export async function openTabMenu(windowId: string, tab: Tab) {
   else if (choice === "newGroup") newGroupWithSelection(windowId, [tab.id]);
   else if (choice.startsWith("group:")) s.placeTabs([tab.id], { pinned: false, groupId: choice.slice(6) });
   else if (choice === "unsplit") s.removeTabFromSplit(tab.id);
+  else if (choice === "side") s.dockToSide(tab.id);
   else if (choice === "mute") toggleMute(tab.id);
   else if (choice === "engine") void togglePageEngine(tab.id);
   else if (choice === "copy") copyUrls([tab.id], false);

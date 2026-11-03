@@ -83,6 +83,7 @@ export function TabsPane() {
       </View>
       <Group style={{ marginTop: 14 }}>
         {toggle("hideToolbarWhileScrolling", "tabs.hideToolbarWhileScrolling")}
+        {toggle("sidePane", "tabs.sidePane")}
         {!top && toggle("showSidebarButton", "tabs.showSidebarButton")}
         {!top && toggle("showClearButton", "tabs.showClearButton")}
         {!top && toggle("balancedTopApps", "tabs.balancedTopApps")}

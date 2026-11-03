@@ -30,6 +30,13 @@ export type BrowserWindow = {
   linkPointer?: [number, number];
   originalProfileId?: string;
   chromeWindow?: string;
+  side?: SideRail;
+};
+
+export type SideRail = {
+  tabIds: string[];
+  profileId?: string;
+  shown?: Record<string, string>;
 };
 
 export type Tab = {
@@ -181,6 +188,6 @@ export type FindState = {
 
 export type NewTabTarget = { kind: "list" } | { kind: "group"; groupId: string } | { kind: "into"; tabId: string };
 
-export type PanelState = { open: boolean; initialText: string; newTab?: NewTabTarget };
+export type PanelState = { open: boolean; initialText: string; newTab?: NewTabTarget; tabId?: string };
 
 export type WindowUi = { panel: PanelState; downloadsOpen: boolean };

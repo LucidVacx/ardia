@@ -35,12 +35,17 @@ import { noteScroll, revealToolbar } from "../../state/windows/toolbarAutoHide";
 import { closeWebNotification, showWebNotification } from "../../state/site/webNotifications";
 import { closeLittleArdiaOnEscape } from "../../state/littleArdia/actions";
 import { closePeekOnEscape } from "../../state/peek/actions";
+import { notePaneFocus } from "../../state/side/focus";
 
 const webViewTab = (t: Tab | undefined) => ({ navigation: t?.navigation, adoptId: t?.adoptId, profileId: t?.profileId ?? "", shownUrl: t?.url ?? "" });
 
 const isBlank = (url: string) => !url || url === "about:blank";
 export const pageKey = (url: string) => url.replace(/#.*$/, "");
 const hostOf = (url: string) => url.match(/^[a-z][\w+.-]*:\/\/([^/?#]*)/i)?.[1]?.toLowerCase() ?? "";
+const focusPane = (tabId: string) => {
+  notePaneFocus(tabId);
+  activateFocusedPane(tabId);
+};
 
 type TabWebViewProps = { tabId: string; visible: boolean; warm: boolean; peekOf?: string };
 
@@ -218,8 +223,8 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
       onPasswordPrompt={(prompt) => showPasswordPrompt(tabId, prompt)}
       onAutofillPrompt={(prompt, id) => showAutofillPrompt(tabId, prompt, id)}
       onExternalApp={(externalApp) => patchPage(tabId, { externalApp })}
-      onPageFocus={() => activateFocusedPane(tabId)}
-      onPagePress={() => activateFocusedPane(tabId)}
+      onPageFocus={() => focusPane(tabId)}
+      onPagePress={() => focusPane(tabId)}
       onWindowClose={() => !isQuitting() && closeTabNow(tabId)}
       onNotification={(notification) => showWebNotification(tabId, notification)}
       onCommand={({ command, text, modifiers }) => {

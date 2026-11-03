@@ -1,6 +1,7 @@
 import type { StateCreator } from "zustand";
 import type { BrowserState } from "../browser/store";
 import {
+  dockedTabIds,
   findLast,
   IDLE_LIVE,
   incognitoProfileId,
@@ -100,8 +101,10 @@ export function moveTabsInto(s: BrowserState, ids: string[], targetId: string): 
   for (const id of sources) {
     const src = next.windows[id];
     if (!src || viewTabIds(next, id).length) continue;
-    const recent = src.tabIds.map((t) => next.tabs[t]!).sort((a, b) => b.lastActiveAt - a.lastActiveAt)[0];
+    const docked = dockedTabIds(next, src);
+    const recent = src.tabIds.filter((t) => !docked.includes(t)).map((t) => next.tabs[t]!).sort((a, b) => b.lastActiveAt - a.lastActiveAt)[0];
     if (recent) next = apply(next, activated(next, src.activeTabIds[recent.profileId] ?? recent.id));
+    else next = withNewTab(next, id, { profileId: src.profileId })[0];
   }
   return settleMovedPins(s, next, moving.map((t) => t.id), targetId);
 }
@@ -217,8 +220,9 @@ export const createWindowsSlice: StateCreator<BrowserState, [], [], WindowsSlice
     if (!w || w.incognito || isSmallWindow(w) || !s.profiles[profileId] || w.profileId === profileId) return;
     s = adoptParkedPins(s, windowId, profileId);
     const remembered = w.activeTabIds[profileId];
-    let target = remembered && s.tabs[remembered]?.windowId === windowId ? remembered : undefined;
-    target ??= s.windows[windowId]!.tabIds.find((id) => s.tabs[id]?.profileId === profileId && !s.tabs[id]!.unloaded);
+    const view = viewTabIds(s, windowId, profileId);
+    let target = remembered && view.includes(remembered) ? remembered : undefined;
+    target ??= view.find((id) => !s.tabs[id]!.unloaded);
     if (!target) [s, target] = withNewTab(s, windowId, { profileId, background: true });
     s = apply(s, activated(s, target));
     if (s.ui.focusedWindowId === windowId) s = { ...s, ui: { ...s.ui, lastProfileId: profileId } };
