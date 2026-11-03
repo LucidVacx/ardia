@@ -421,10 +421,11 @@ final class WindowManager: NSObject, NSWindowDelegate {
     guard let window = notification.object as? NSWindow, let id = id(of: window), let entry = managed[id] else { return }
     let entered = notification.name == NSWindow.didEnterFullScreenNotification
     entry.isFullScreen = entered
+    let enteredForUser = entered && !ArdiaChromeWindowHost.windowFullScreenIs(forPage: window)
     if isMainWindow(window) {
-      ShellEvents.send(.window, ["type": "fullScreen", "id": id, "on": entered && !ArdiaChromeWindowHost.windowFullScreenIs(forPage: window)])
+      ShellEvents.send(.window, ["type": "fullScreen", "id": id, "on": enteredForUser])
     }
-    entry.roundFullScreenTop(entered)
+    entry.roundFullScreenTop(enteredForUser)
     if entered { fullScreen.entered(id) }
   }
 

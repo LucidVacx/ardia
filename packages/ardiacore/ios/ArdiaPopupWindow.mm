@@ -177,7 +177,8 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
                       NSWindowStyleMaskResizable;
   window.releasedWhenClosed = NO;
   window.tabbingMode = NSWindowTabbingModeDisallowed;
-  window.collectionBehavior = (window.collectionBehavior & ~NSWindowCollectionBehaviorFullScreenPrimary) | NSWindowCollectionBehaviorFullScreenAuxiliary;
+  if (opener.window.styleMask & NSWindowStyleMaskFullScreen)
+    window.collectionBehavior = (window.collectionBehavior & ~NSWindowCollectionBehaviorFullScreenPrimary) | NSWindowCollectionBehaviorFullScreenAuxiliary;
   window.minSize = NSMakeSize(200, 150);
   [window setContentSize:size];
   [self placeWithFeatures:features];
