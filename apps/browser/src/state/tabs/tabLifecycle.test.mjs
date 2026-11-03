@@ -60,6 +60,34 @@ test("the app's Memory Saver settings reach the engine at launch and on every ch
   assert.deepEqual(globalThis.engineCalls.filter(([name]) => name === "batterySaver").map(([, mode]) => mode), ["off"], "Battery Saver is always Chrome's: on or off, never left to Chrome's default");
 });
 
+test("docked rail tabs' sites are kept active while the rail is on, without touching the synced site list", () => {
+  S().hydrate({ settings: { keepActiveSites: ["figma.com"] } });
+  const w = S().createWindow({ url: "https://a.example/" });
+  const chat = S().newTab(w, { url: "https://www.chat.example/c/1", background: true });
+  const mail = S().newTab(w, { url: "https://mail.example/inbox", background: true });
+  const local = S().newTab(w, { url: "about:blank", background: true });
+  lifecycle.startTabLifecycle();
+  globalThis.engineCalls.length = 0;
+  const lastSites = () => memorySaverCalls().at(-1)?.sites;
+  S().dockToSide(chat);
+  S().dockToSide(mail);
+  S().dockToSide(local);
+  assert.deepEqual(lastSites(), ["figma.com", "chat.example", "mail.example"]);
+  assert.deepEqual(S().settings.keepActiveSites, ["figma.com"]);
+  const sent = memorySaverCalls().length;
+  S().updateTab(chat, { title: "Chat" });
+  assert.equal(memorySaverCalls().length, sent, "a change that keeps the same sites sends nothing");
+  S().navigate(mail, "https://other.example/");
+  S().updateTab(mail, { url: "https://other.example/" });
+  assert.deepEqual(lastSites(), ["figma.com", "chat.example", "other.example"]);
+  S().undockFromSide(chat);
+  assert.deepEqual(lastSites(), ["figma.com", "other.example"]);
+  S().updateSettings({ sidePane: false });
+  assert.deepEqual(lastSites(), ["figma.com"]);
+  S().updateSettings({ sidePane: true });
+  assert.deepEqual(lastSites(), ["figma.com", "other.example"]);
+});
+
 test("a saved Memory Saver mode or site list the engine wouldn't take falls back instead of reaching it", () => {
   assert.deepEqual(memorySaverRequest({ memorySaver: true, memorySaverMode: "turbo", keepActiveSites: ["a.com", 3] }), { state: "on", aggressiveness: "balanced", sites: ["a.com"] });
   assert.deepEqual(memorySaverRequest({ memorySaver: undefined, memorySaverMode: undefined, keepActiveSites: undefined }), { state: "on", aggressiveness: "balanced", sites: [] });

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 const { useBrowser } = await import("../browser/store.ts");
 const { activeTabId, viewTabIds } = await import("../browser/model.ts");
-const { shownSideTab, sideProfileOf, sideTabsOf } = await import("./side.ts");
+const { railKeptSites, shownSideTab, sideProfileOf, sideTabsOf } = await import("./side.ts");
 const { splitTabIds } = await import("../splits/splits.ts");
 
 const S = () => useBrowser.getState();
@@ -272,16 +272,22 @@ test("with tabs shared across windows, turning the rail off keeps the docked tab
   S().updateSettings({ shareTabsAcrossWindows: false, sidePane: true });
 });
 
-test("the side tab in view counts as shown while the rail is on", async () => {
+test("the side tab in view counts as shown, and every docked tab's site is kept active, while the rail is on", async () => {
   const { shownTabIds } = await import("../tabs/shownTabs.ts");
+  const { memorySaverRequest } = await import("../tabs/memorySaver.ts");
+  const kept = () => memorySaverRequest(S().settings, railKeptSites(S())).sites;
   const { w, b, c } = threeTabs();
   S().dockToSide(b);
   S().dockToSide(c);
   assert.equal(shownSideTab(S(), w), c);
   assert.equal(shownTabIds(S()).has(c), true);
   assert.equal(shownTabIds(S()).has(b), false);
+  assert.deepEqual(kept(), ["b.example", "c.example"]);
+  S().undockFromSide(b);
+  assert.deepEqual(kept(), ["c.example"]);
   sidePane(false);
   assert.equal(shownTabIds(S()).has(c), false);
+  assert.deepEqual(kept(), []);
   sidePane(true);
 });
 

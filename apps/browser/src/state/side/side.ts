@@ -1,7 +1,8 @@
 import type { StateCreator } from "zustand";
+import { hostOf } from "@ardia/core";
 import type { BrowserState } from "../browser/store";
 import type { BrowserWindow, SideRail } from "../browser/types";
-import { activeTabId, inPinnedContainer, isIncognitoProfile } from "../browser/model";
+import { activeTabId, dockedTabIds, inPinnedContainer, isIncognitoProfile } from "../browser/model";
 import { activated, apply, removeTabs, withNewTab } from "../tabs/tabs";
 import { removeFromSplits } from "../splits/splits";
 import { leaveGroups } from "../groups/groups";
@@ -27,6 +28,19 @@ export function sideTabsOf(s: BrowserState, windowId: string): string[] {
   const w = s.windows[windowId];
   const profileId = sideProfileOf(w);
   return (w?.side?.tabIds ?? []).filter((id) => s.tabs[id]?.profileId === profileId);
+}
+
+export function railKeptSites(s: Pick<BrowserState, "settings" | "windows" | "tabs">): string[] {
+  const sites = new Set<string>();
+  for (const w of Object.values(s.windows)) {
+    if (w.kind !== "main") continue;
+    for (const id of dockedTabIds(s, w)) {
+      const url = s.tabs[id]?.url ?? "";
+      const host = /^https?:\/\//i.test(url) ? hostOf(url) : "";
+      if (host) sites.add(host);
+    }
+  }
+  return [...sites].sort();
 }
 
 const withSide = (s: BrowserState, windowId: string, side: SideRail | undefined): BrowserState => {
