@@ -25,18 +25,28 @@ const changed = (a: MemorySaverSettings, b: MemorySaverSettings) =>
 
 let started = false;
 
+const RAIL_SITES_SETTLE_MS = 1000;
+const sameSites = (a: string[], b: string[]) => a.join("\n") === b.join("\n");
+
 export function startMemorySaver() {
   if (started) return;
   started = true;
   let railSites = railKeptSites(useBrowser.getState());
+  let railTimer: ReturnType<typeof setTimeout> | null = null;
   const push = () => void setMemorySaver(memorySaverRequest(useBrowser.getState().settings, railSites)).catch(() => {});
+  const sendRailSites = () => {
+    railTimer = null;
+    const next = railKeptSites(useBrowser.getState());
+    if (sameSites(next, railSites)) return;
+    railSites = next;
+    push();
+  };
   push();
   useBrowser.subscribe((s, prev) => {
-    const railMayDiffer = s.windows !== prev.windows || s.tabs !== prev.tabs || s.settings.sidePane !== prev.settings.sidePane;
-    const nextRail = railMayDiffer ? railKeptSites(s) : railSites;
-    const railChanged = nextRail.join("\n") !== railSites.join("\n");
-    railSites = nextRail;
-    if (railChanged || changed(s.settings, prev.settings)) push();
+    if (changed(s.settings, prev.settings)) push();
+    const touched = s.windows !== prev.windows || s.tabs !== prev.tabs || s.settings.sidePane !== prev.settings.sidePane;
+    const railMayDiffer = touched && (railSites.length > 0 || Object.values(s.windows).some((w) => !!w.side?.tabIds.length));
+    if (railMayDiffer && !railTimer && !sameSites(railKeptSites(s), railSites)) railTimer = setTimeout(sendRailSites, RAIL_SITES_SETTLE_MS);
   });
 }
 

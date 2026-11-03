@@ -16,11 +16,11 @@ export function notePaneFocus(tabId: string) {
   else focusedSide.delete(windowId);
 }
 
-function focusSidePage(windowId: string, tabId: string) {
+function focusSidePage(windowId: string, tabId: string, retry: boolean) {
   const s = useBrowser.getState();
-  if (shownSideTab(s, windowId) !== tabId) return;
+  if (focusedSideTab(s, windowId) !== tabId || s.windowUi[windowId]?.panel.open) return;
   if (s.tabs[tabId]?.url) void webviews.get(tabId)?.focus();
-  else focusHeroBar(windowId, tabId);
+  else if (!focusHeroBar(windowId, tabId) && retry) setTimeout(() => focusSidePage(windowId, tabId, false), FOCUS_AFTER_SHOW_MS);
 }
 
 export function focusSidePane(windowId: string) {
@@ -28,7 +28,7 @@ export function focusSidePane(windowId: string) {
   const id = shownSideTab(s, windowId);
   if (!id) return;
   focusedSide.set(windowId, { side: id, main: activeTabId(s, windowId) });
-  setTimeout(() => focusSidePage(windowId, id), FOCUS_AFTER_SHOW_MS);
+  setTimeout(() => focusSidePage(windowId, id, true), FOCUS_AFTER_SHOW_MS);
 }
 
 export const forgetSidePaneFocus = (windowId: string) => void focusedSide.delete(windowId);

@@ -123,7 +123,7 @@ export const createSideSlice: StateCreator<BrowserState, [], [], SideSlice> = (s
     if (!t || !side?.tabIds.includes(tabId)) return;
     const tabIds = side.tabIds.filter((id) => id !== tabId);
     const shown = Object.fromEntries(Object.entries(side.shown ?? {}).filter(([, id]) => id !== tabId));
-    set(withSide(s, t.windowId, tabIds.length ? { ...side, tabIds, shown } : undefined));
+    set(withSide(s, t.windowId, tabIds.length || side.profileId ? { ...side, tabIds, shown } : undefined));
     get().activate(tabId);
   },
 

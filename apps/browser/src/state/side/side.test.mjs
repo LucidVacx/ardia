@@ -42,7 +42,7 @@ test("undocking puts the tab back in the list and makes it active", () => {
   const { w, b } = threeTabs();
   S().dockToSide(b);
   S().undockFromSide(b);
-  assert.equal(side(w), undefined);
+  assert.deepEqual(docked(w), []);
   assert.ok(view(w).includes(b));
   assert.equal(active(w), b);
 });
@@ -70,7 +70,7 @@ test("closing a docked tab removes it from the rail and keeps the main tab", () 
   S().dockToSide(b);
   S().closeTab(b);
   assert.equal(S().tabs[b], undefined);
-  assert.equal(side(w), undefined);
+  assert.deepEqual(docked(w), []);
   assert.equal(active(w), a);
 });
 
@@ -155,7 +155,7 @@ test("turning the setting back on drops tabs that became active, split or groupe
   assert.equal(active(w), b);
   assert.ok(view(w).includes(b));
   assert.ok(view(w).includes(c));
-  assert.equal(side(w), undefined);
+  assert.deepEqual(docked(w), []);
   assert.ok(a);
 });
 
@@ -240,7 +240,7 @@ test("hydrate never makes a docked tab the active one", () => {
   data.windows[w].activeTabIds = {};
   S().hydrate(data);
   assert.equal(active(w), a);
-  assert.equal(side(w), undefined);
+  assert.deepEqual(docked(w), []);
 });
 
 test("with tabs shared across windows, a docked tab isn't mirrored into the other window's list", () => {
@@ -333,10 +333,10 @@ test("any path that makes a docked tab active, grouped or pinned takes it off th
   S().placeTabs([b], { pinned: false, groupId: g });
   assert.deepEqual(docked(w), [c]);
   S().togglePin(c);
-  assert.equal(side(w), undefined);
+  assert.deepEqual(docked(w), []);
   S().dockToSide(d);
   useBrowser.setState({ windows: { ...S().windows, [w]: { ...S().windows[w], activeTabIds: { default: d } } } });
-  assert.equal(side(w), undefined);
+  assert.deepEqual(docked(w), []);
   assert.equal(active(w), d);
   assert.ok(a);
 });
@@ -376,4 +376,20 @@ test("with tabs shared, losing the window's last main tab opens a new one even w
   assert.ok(active(a), "window a still has a main tab");
   assert.equal(docked(a).includes(active(a)), false);
   S().updateSettings({ shareTabsAcrossWindows: false });
+});
+
+test("an empty rail switches to another profile and keeps it, so + opens that profile's first rail tab", () => {
+  const { w } = threeTabs();
+  const work = S().createProfile({ name: "Work" });
+  S().setSideProfile(w, work);
+  S().newTab(w, { url: "https://d.example/", background: true });
+  assert.equal(sideProfileOf(S().windows[w]), work);
+  S().openSideTab(w, work);
+  const [railTab] = sideTabsOf(S(), w);
+  assert.equal(S().tabs[railTab].profileId, work);
+  assert.equal(sideProfileOf(S().windows[w]), work);
+  S().closeTab(railTab);
+  assert.equal(sideProfileOf(S().windows[w]), work, "closing the rail's last tab keeps its profile");
+  S().deleteProfile(work);
+  assert.equal(side(w), undefined, "an empty rail of a deleted profile goes");
 });

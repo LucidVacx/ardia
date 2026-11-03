@@ -60,7 +60,9 @@ test("the app's Memory Saver settings reach the engine at launch and on every ch
   assert.deepEqual(globalThis.engineCalls.filter(([name]) => name === "batterySaver").map(([, mode]) => mode), ["off"], "Battery Saver is always Chrome's: on or off, never left to Chrome's default");
 });
 
-test("docked rail tabs' sites are kept active while the rail is on, without touching the synced site list", () => {
+test("docked rail tabs' sites are kept active while the rail is on, without touching the synced site list", (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const settle = () => t.mock.timers.tick(1000);
   S().hydrate({ settings: { keepActiveSites: ["figma.com"] } });
   const w = S().createWindow({ url: "https://a.example/" });
   const chat = S().newTab(w, { url: "https://www.chat.example/c/1", background: true });
@@ -72,19 +74,25 @@ test("docked rail tabs' sites are kept active while the rail is on, without touc
   S().dockToSide(chat);
   S().dockToSide(mail);
   S().dockToSide(local);
+  settle();
   assert.deepEqual(lastSites(), ["figma.com", "chat.example", "mail.example"]);
   assert.deepEqual(S().settings.keepActiveSites, ["figma.com"]);
   const sent = memorySaverCalls().length;
   S().updateTab(chat, { title: "Chat" });
   assert.equal(memorySaverCalls().length, sent, "a change that keeps the same sites sends nothing");
-  S().navigate(mail, "https://other.example/");
+  S().updateTab(mail, { url: "https://redirect.example/" });
   S().updateTab(mail, { url: "https://other.example/" });
+  settle();
   assert.deepEqual(lastSites(), ["figma.com", "chat.example", "other.example"]);
+  assert.equal(memorySaverCalls().length, sent + 1, "a redirect chain inside the settle window sends once");
   S().undockFromSide(chat);
+  settle();
   assert.deepEqual(lastSites(), ["figma.com", "other.example"]);
   S().updateSettings({ sidePane: false });
+  settle();
   assert.deepEqual(lastSites(), ["figma.com"]);
   S().updateSettings({ sidePane: true });
+  settle();
   assert.deepEqual(lastSites(), ["figma.com", "other.example"]);
 });
 
