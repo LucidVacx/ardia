@@ -21,7 +21,7 @@ export function clickTab(windowId: string, tabId: string, mods: ClickMods = {}) 
   store().clickTab(windowId, tabId, mods);
 }
 
-export const resetSidebarWidth = () => store().updateSettings({ sidebarWidth: DEFAULT_SIDEBAR_WIDTH });
+export const resetSidebarWidth = () => store().updateSettings({ sidebarWidth: DEFAULT_SIDEBAR_WIDTH, sidebarCompact: false });
 
 export function returnFocusToPage(windowId: string) {
   const s = store();

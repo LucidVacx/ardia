@@ -5,15 +5,16 @@ import { resetSidebarWidth } from "../../state/sidebar/actions";
 import { useResizeDrag } from "./useResizeDrag";
 import { setLiveSidebarWidth } from "../../state/sidebar/sidebarUi";
 import { SIDEBAR_MAX_WIDTH, SIDEBAR_MIN_WIDTH } from "./tokens";
+import { SIDEBAR_COMPACT_SNAP, SIDEBAR_COMPACT_WIDTH, savedSidebarWidth } from "../../state/sidebar/compact";
 
 export function ResizeHandle({ windowId }: { windowId: string }) {
   const handlers = useResizeDrag({
-    min: SIDEBAR_MIN_WIDTH,
+    min: SIDEBAR_COMPACT_WIDTH,
     max: SIDEBAR_MAX_WIDTH,
     direction: 1,
-    saved: () => currentSettings().sidebarWidth,
+    saved: () => savedSidebarWidth(currentSettings()),
     onLive: (w) => setLiveSidebarWidth(windowId, w),
-    onCommit: (w) => updateSettings({ sidebarWidth: w }),
+    onCommit: (w) => updateSettings(w < SIDEBAR_COMPACT_SNAP ? { sidebarCompact: true } : { sidebarWidth: Math.max(w, SIDEBAR_MIN_WIDTH), sidebarCompact: false }),
   });
   return (
     <View

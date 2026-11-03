@@ -5,6 +5,7 @@ import { ARC_LIGHTS_CENTER, lightsCenter, toolbarLightsCenter, TOP_STRIP_LIGHTS_
 import { DEFAULT_SIDEBAR_WIDTH } from "../../lib/windowLayout";
 import { useBrowser, type BrowserState } from "../browser/store";
 import { useWindowId } from "../browser/hooks";
+import { savedSidebarWidth } from "../sidebar/compact";
 
 export function useTabLayout(): "sidebar" | "top" {
   const windowId = useWindowId();
@@ -16,6 +17,7 @@ export function addressBarInSidebar(s: BrowserState, windowId: string): boolean 
   return (
     !!w &&
     s.settings.addressBar === "sidebar" &&
+    !s.settings.sidebarCompact &&
     (w.sidebarOpen || switchOn("sidebarSlide")) &&
     tabLayoutOf(s, w.id) === "sidebar"
   );
@@ -35,7 +37,7 @@ export function openingLightsCenter(s: BrowserState, windowId: string): [number,
   if (!w) return null;
   const open = w.sidebarOpen ?? true;
   if (tabLayoutOf(s, w.id) === "top") return open ? [...TOP_STRIP_LIGHTS_CENTER] : lightsCenter(DEFAULT_SIDEBAR_WIDTH);
-  return lightsCenter(open ? 0 : s.settings.sidebarWidth, 0, s.settings.addressBar === "sidebar" ? ARC_LIGHTS_CENTER : toolbarLightsCenter(s.settings.compactToolbar));
+  return lightsCenter(open ? 0 : savedSidebarWidth(s.settings), 0, s.settings.addressBar === "sidebar" && !s.settings.sidebarCompact ? ARC_LIGHTS_CENTER : toolbarLightsCenter(s.settings.compactToolbar));
 }
 
 export const useToolbarLightsCenter = (): readonly [number, number] => toolbarLightsCenter(useBrowser((s) => s.settings.compactToolbar));

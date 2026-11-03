@@ -24,6 +24,7 @@ import { pressGroupClose, useGroupCloseControlWhile } from "../../state/sidebar/
 import { openGroupMenu } from "../../state/sidebar/menus";
 import { registerRow, useSidebarUi } from "../../state/sidebar/sidebarUi";
 import { TabIcon } from "./TabIcon";
+import { useSidebarCompact } from "./compact";
 import { RenameField, SplitRowItem, TabRowItem } from "./TabRow";
 import { groupSurface, TABULAR_NUMS, useSidebarTokens } from "./tokens";
 import { curve } from "../ui/motion";
@@ -81,6 +82,7 @@ export const GroupBlock = memo(function GroupBlock({
 }) {
   const windowId = useWindowId();
   const tokens = useSidebarTokens();
+  const compact = useSidebarCompact();
   const stored = useGroup(groupId, (g) => !!g?.collapsed);
   const collapsed = useDragFolded(entryKey("group", groupId)) || stored;
   const color = useGroup(groupId, (g) => g?.color ?? null);
@@ -134,7 +136,7 @@ export const GroupBlock = memo(function GroupBlock({
             rowHeight={(key) => entryHeightNow(windowId, profileId, key)}
             padTop={headGap(collapsed && activeEntry ? activeEntry : entries[0])}
             padBottom={PAD}
-            indent={GROUP_INDENT}
+            indent={compact ? 0 : GROUP_INDENT}
             mountClosed={selectedInside}
             footer={<Animated.View ref={tail.wrapper.ref} style={tail.wrapper.style} />}
           />
@@ -169,6 +171,7 @@ export const SidebarEntry = memo(function SidebarEntry({
 function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; windowId: string; collapsed: boolean; open: Animated.Value }) {
   const theme = useTheme();
   const tokens = useSidebarTokens();
+  const compact = useSidebarCompact();
   const group = useGroup(groupId, (g) => g);
   const label = useGroupLabel(groupId);
   const firstTab = useGroupFirstTabIcon(groupId);
@@ -189,6 +192,8 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
         }}
       >
         <Pressable
+          tooltip={compact ? label : undefined}
+          accessibilityLabel={compact ? label : undefined}
           onPress={() => {
             dismissHover();
             if (!renaming) updateGroup(groupId, { collapsed: !collapsed });
@@ -198,14 +203,16 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
             <Surface
               fill={hex(dropInto || pressed ? theme.tabPressed : hovered ? tokens.groupHeaderHover : ink.clear)}
               cornerRadius={GROUP_HEADER_RADIUS}
-              style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", paddingLeft: 9, paddingRight: 6 }}
+              style={{ height: layout.rowHeight, flexDirection: "row", alignItems: "center", ...(compact ? { justifyContent: "center" } : { paddingLeft: 9, paddingRight: 6 }) }}
             >
               {group.icon || firstTab ? (
                 <TabIcon url={firstTab?.url ?? ""} favicon={firstTab?.favicon} icon={group.icon ?? firstTab?.customIcon} profileId={firstTab?.profileId} />
+              ) : compact ? (
+                <Symbol name="folder" size={13} color={tokens.groupTitle} style={{ width: 16, height: 16 }} />
               ) : (
                 <View style={{ width: 16 }} />
               )}
-              {renaming ? (
+              {compact ? null : renaming ? (
                 <RenameField
                   initial={group.name}
                   placeholder={label}
@@ -235,13 +242,15 @@ function GroupHeader({ groupId, windowId, collapsed, open }: { groupId: string; 
                   </Animated.View>
                 </Animated.View>
               )}
-              <HoverSlot
-                hovered={hovered && !renaming}
-                width={22}
-                hover={closeControl && <Button variant="icon" icon={closeControl.icon} size={10} weight="semibold" box={22} radius={radius.m} onPress={() => pressGroupClose(groupId)} tooltip={closeControl.tooltip} />}
-              >
-                {countdown.label && !renaming ? <MeetingTimeLabel label={countdown.label} urgent={countdown.urgent} /> : null}
-              </HoverSlot>
+              {!compact && (
+                <HoverSlot
+                  hovered={hovered && !renaming}
+                  width={22}
+                  hover={closeControl && <Button variant="icon" icon={closeControl.icon} size={10} weight="semibold" box={22} radius={radius.m} onPress={() => pressGroupClose(groupId)} tooltip={closeControl.tooltip} />}
+                >
+                  {countdown.label && !renaming ? <MeetingTimeLabel label={countdown.label} urgent={countdown.urgent} /> : null}
+                </HoverSlot>
+              )}
             </Surface>
           )}
         </Pressable>

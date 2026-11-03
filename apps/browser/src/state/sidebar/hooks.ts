@@ -15,9 +15,10 @@ import { groupTabIds } from "./groupPanelRows";
 import { capture, type Capture } from "./listCapture";
 import { pinnedCollapsed, pinnedKept } from "./pinnedFold";
 import { useSidebarUi, type Hover } from "./sidebarUi";
+import { savedSidebarWidth } from "./compact";
 
 export function useSidebarWidth(windowId: string): number {
-  const saved = useBrowser((s) => s.settings.sidebarWidth);
+  const saved = useBrowser((s) => savedSidebarWidth(s.settings));
   const dragging = useSidebarUi((u) => u.dragWidth[windowId]);
   return dragging ?? saved;
 }

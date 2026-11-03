@@ -14,6 +14,7 @@ export function TabPressArea({
   style,
   pressStyle,
   tooltip,
+  label,
   leading,
   children,
 }: {
@@ -22,6 +23,7 @@ export function TabPressArea({
   style?: StyleProp<ViewStyle>;
   pressStyle?: StyleProp<ViewStyle>;
   tooltip?: string;
+  label?: string;
   leading?: ReactNode;
   children: ReactNode | ((state: { pressed: boolean }) => ReactNode);
 }) {
@@ -42,6 +44,7 @@ export function TabPressArea({
           }}
           style={pressStyle}
           tooltip={tooltip}
+          accessibilityLabel={label}
         >
           {children}
         </Pressable>
